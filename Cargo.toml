@@ -7,4 +7,4 @@ version = "0.1.0"
 [dependencies]
 image = "0.23"
 rand = "0.7"
-sokol = {version = "0.4", path = "../../sokol-rs/sokol"}
+sokol = {version = "0.4", git = "https://github.com/code-disaster/sokol-rs.git"}
