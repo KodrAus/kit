@@ -3,6 +3,7 @@ authors = ["Wes Hardee"]
 categories = ["game-engines", "gamedev", "graphics"]
 description = "An small game engine for 3D games."
 edition = "2018"
+homepage = "https://github.com/weshardee/kit"
 keywords = ["graphics", "3D", "game", "engine"]
 license = "MIT"
 name = "kit"
