@@ -1,8 +1,14 @@
 [package]
-authors = ["wes"]
+authors = ["Wes Hardee"]
+categories = ["game-engines", "gamedev", "graphics"]
+description = "An small game engine for 3D games."
 edition = "2018"
+keywords = ["graphics", "3D", "game", "engine"]
+license = "MIT"
 name = "kit"
-version = "0.1.0"
+readme = "README.md"
+repository = "https://github.com/weshardee/kit"
+version = "0.0.1"
 
 [dependencies]
 image = "0.23"
