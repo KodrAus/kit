@@ -1,6 +1,6 @@
 [package]
 authors = ["Wes Hardee"]
-categories = ["game-engines", "gamedev", "graphics"]
+categories = ["game-engines"]
 description = "An small game engine for 3D games."
 edition = "2018"
 exclude = [
