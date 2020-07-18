@@ -379,18 +379,11 @@ checksum = "d29ab0c6d3fc0ee92fe66e2d99f700eab17a8d57d1c1d3b748380fb20baa78cd"
 
 [[package]]
 name = "sokol"
-version = "0.4.0"
-source = "git+https://github.com/code-disaster/sokol-rs.git#0d3774b4b7d0b6801fad27a24afa984c3a3b5c62"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4995ebdee01772fc27bfe15a4087c536bd285b61f630661fc69401c8dcac90a3"
 dependencies = [
  "bitflags",
- "sokol-sys",
-]
-
-[[package]]
-name = "sokol-sys"
-version = "0.4.0"
-source = "git+https://github.com/code-disaster/sokol-rs.git#0d3774b4b7d0b6801fad27a24afa984c3a3b5c62"
-dependencies = [
  "cc",
 ]
 

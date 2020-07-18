@@ -14,12 +14,12 @@ pub fn draw_point(ctx: &mut Ctx, pos: V2, color: V4) {
 }
 
 pub fn init(ctx: &mut Ctx) {
-    let (vs_src, fs_src) = match sg_query_backend() {
-        SgBackend::GLCORE33 => (
+    let (vs_src, fs_src) = match sg_api() {
+        SgApi::OpenGL33 => (
             include_str!("point.vert.glsl"),
             include_str!("point.frag.glsl"),
         ),
-        SgBackend::MetalMacOS => (
+        SgApi::Metal => (
             include_str!("point.vs.metal"),
             include_str!("point.fs.metal"),
         ),

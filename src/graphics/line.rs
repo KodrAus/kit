@@ -17,12 +17,12 @@ pub fn draw_line(ctx: &mut Ctx, a: V3, b: V3, color: V4) {
 
 pub fn init(ctx: &mut Ctx) {
     // TODO common primitives (line, point, maybe others?) could share the same shaders
-    let (vs_src, fs_src) = match sg_query_backend() {
-        SgBackend::GLCORE33 => (
+    let (vs_src, fs_src) = match sg_api() {
+        SgApi::OpenGL33 => (
             include_str!("line.vert.glsl"),
             include_str!("line.frag.glsl"),
         ),
-        SgBackend::MetalMacOS => (include_str!("line.vs.metal"), include_str!("line.fs.metal")),
+        SgApi::Metal => (include_str!("line.vs.metal"), include_str!("line.fs.metal")),
         _ => panic!(),
     };
     let pipeline = sg_make_pipeline(&SgPipelineDesc {

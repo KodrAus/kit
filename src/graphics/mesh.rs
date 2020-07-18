@@ -163,9 +163,9 @@ pub fn init(ctx: &mut Ctx) {
         },
     );
 
-    let (vs_src, fs_src) = match sg_query_backend() {
-        SgBackend::MetalMacOS => (include_str!("mesh.vs.metal"), include_str!("mesh.fs.metal")),
-        SgBackend::D3D11 => (
+    let (vs_src, fs_src) = match sg_api() {
+        SgApi::Metal => (include_str!("mesh.vs.metal"), include_str!("mesh.fs.metal")),
+        SgApi::Direct3D11 => (
             "cbuffer params: register(b0) {
                   float4x4 mvp;
                 };
@@ -187,7 +187,7 @@ pub fn init(ctx: &mut Ctx) {
                   return color;
                 }",
         ),
-        SgBackend::GLCORE33 => (
+        SgApi::OpenGL33 => (
             "#version 330
             uniform mat4 mvp;
             in vec4 position;

@@ -22,12 +22,12 @@ pub(crate) fn draw_quad(ctx: &mut Ctx, quad: DrawQuad) {
 pub fn init(ctx: &mut Ctx) {
     let shape = &mut ctx.gl.quads.shape;
 
-    let (vs_src, fs_src) = match sg_query_backend() {
-        SgBackend::GLCORE33 => (
+    let (vs_src, fs_src) = match sg_api() {
+        SgApi::OpenGL33 => (
             include_str!("quad.vert.glsl"),
             include_str!("quad.frag.glsl"),
         ),
-        SgBackend::MetalMacOS => (include_str!("quad.vs.metal"), include_str!("quad.fs.metal")),
+        SgApi::Metal => (include_str!("quad.vs.metal"), include_str!("quad.fs.metal")),
         _ => panic!("quad shaders not implemented for this platform"),
     };
 
