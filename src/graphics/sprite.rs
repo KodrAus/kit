@@ -9,29 +9,24 @@ use crate::*;
 /// Note: Future versions may iterate on the TextureFrame format so that some
 /// of this math can be pre-baked (for example, a TextureFrame's boundaries
 /// could already be expressed in UVs without needing extra calculation here).
-pub fn draw_sprite(ctx: &mut Ctx, pos: V2, texture: Texture, frame: TextureFrame, scale: f32) {
-    if near_zero(scale) {
-        // TODO maybe near_zero?
-        return;
-    }
+pub fn draw_sprite(ctx: &mut Ctx, sprite: Sprite, pos: V2, scale: f32) {
+    let corners = sprite.corners;
+    let img_id = sprite.img_id;
+    let transform = sprite_transform(pos, scale);
+    draw_quad(
+        ctx,
+        DrawQuad {
+            img_id,
+            corners,
+            transform,
+        },
+    );
+}
 
-    // TODO precalculate UVs based on metadata rather than redoing this for
-    // each quad? Or I could push it into the shader where it would be highly
-    // parallelized.
-    let sheet_w = texture.w;
-    let uv_l: f32 = frame.x as f32 / sheet_w as f32;
-    let uv_r: f32 = (frame.x + frame.w) as f32 / sheet_w as f32;
-    let min = V2::ZERO - frame.offset;
-    let max = min + v2(frame.w as f32, frame.h as f32);
-
-    let corners = [
-        QuadVert::new(min.x, min.y, 0.0, uv_l, 1.0),
-        QuadVert::new(max.x, min.y, 0.0, uv_r, 1.0),
-        QuadVert::new(min.x, max.y, 0.0, uv_l, 0.0),
-        QuadVert::new(max.x, max.y, 0.0, uv_r, 0.0),
-    ];
-
-    let mut transform = M4::diag(1.0);
+/// Creates a transformation matrix based on a 2D position and scaling factor
+/// for use in creating quad draw calls that display images
+pub fn sprite_transform(pos: V2, scale: f32) -> M4 {
+    let mut transform = M4::IDENTITY;
 
     // translation
     transform.e[3][0] = pos.x;
@@ -43,12 +38,32 @@ pub fn draw_sprite(ctx: &mut Ctx, pos: V2, texture: Texture, frame: TextureFrame
     transform.e[1][1] = scale;
     transform.e[2][2] = scale;
 
-    draw_quad(
-        ctx,
-        DrawQuad {
-            texture_id: texture.id,
-            corners,
-            transform,
-        },
-    );
+    transform
+}
+
+/// Draws a full image on screen at the specified position and scale using a quad.
+///
+/// A pivot point (here in pixels) in the image will align to the specified position.
+/// A pivot point of (0,0) means that the bottom left corner of the image will be
+/// placed at the specified position. This is mostly used for scaling *around* the
+/// pivot point.
+///
+/// TODO (wesh) should this convenience method be part of the engine at all?
+/// Maybe split out 2D drawing into a separate module.
+pub fn draw_image(ctx: &mut Ctx, img_id: usize, pos: V2, scale: f32, pivot_px: V2) {
+    let w = ctx.gl.images.e[img_id].w as f32;
+    let h = ctx.gl.images.e[img_id].h as f32;
+    let l = -pivot_px.x;
+    let d = -pivot_px.y;
+    let r = l + w;
+    let u = d + h;
+    let z = 0.0;
+    let corners = [
+        QuadVert::new(l, d, z, 0.0, 1.0),
+        QuadVert::new(r, d, z, 1.0, 1.0),
+        QuadVert::new(l, u, z, 0.0, 0.0),
+        QuadVert::new(r, u, z, 1.0, 0.0),
+    ];
+    let sprite = Sprite { img_id, corners };
+    draw_sprite(ctx, sprite, pos, scale);
 }

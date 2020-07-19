@@ -186,9 +186,8 @@ pub fn present(ctx: &mut Ctx) {
 
         let mvp = ctx.gl.proj * mv;
         sg_apply_uniforms(SgShaderStage::Vertex, 0, &mvp, size_of::<M4>() as i32);
-        let img_id = quad.texture_id;
-        let img = ctx.gl.images.e[img_id];
-        shape.bindings.fs_images[0] = img;
+        let img_id = quad.img_id;
+        shape.bindings.fs_images[0] = ctx.gl.images.e[img_id].e;
 
         sg_apply_bindings(&shape.bindings); // do I need to re-apply this for each draw call?
 

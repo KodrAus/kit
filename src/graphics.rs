@@ -29,7 +29,7 @@ pub fn load_img(ctx: &mut Ctx, filename: &str) -> Texture {
 
     // TODO when I switch to OpenGL, I may just want to use a surface to load pixel data
     let img = image::open(path).unwrap();
-    gl_register_texture(ctx, img)
+    gl_register_img(ctx, img)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@ pub use mesh::draw_mesh;
 pub use point::draw_point;
 pub use rect::draw_rect;
 
-pub use sprite::draw_sprite;
+pub use sprite::*;
 
 // TODO reimplement
 // pub fn draw_mesh(&mut self, mesh_i: u8, transform: M4) {
@@ -87,7 +87,7 @@ pub fn default_projection(ctx: &mut Ctx) {
 // TODO unload textures?
 
 /// internal function for registering an image as a texture in graphics memory
-fn gl_register_texture(ctx: &mut Ctx, img: DynamicImage) -> Texture {
+fn gl_register_img(ctx: &mut Ctx, img: DynamicImage) -> Texture {
     let id = ctx.gl.images.count;
     ctx.gl.images.count += 1;
 
@@ -100,13 +100,12 @@ fn gl_register_texture(ctx: &mut Ctx, img: DynamicImage) -> Texture {
 
     // let num_channels = num_channels as i32;
     let size: i32 = width * height * 8 /* bytes per pixel */;
-
-    ctx.gl.images.e[id] = sg_make_image(
+    let e = sg_make_image(
         Some(&[(img_ptr, size)]),
         &SgImageDesc {
             width,
             height,
-            pixel_format: SgPixelFormat::RGBA8, // 32 bytes per pixel, right?
+            pixel_format: SgPixelFormat::RGBA8,
             min_filter: SgFilter::Nearest,
             mag_filter: SgFilter::Nearest,
             wrap_u: SgWrap::ClampToEdge,
@@ -114,6 +113,7 @@ fn gl_register_texture(ctx: &mut Ctx, img: DynamicImage) -> Texture {
             ..Default::default()
         },
     );
+    ctx.gl.images.e[id] = Image { e, w, h };
 
     return Texture { id, w, h };
 }

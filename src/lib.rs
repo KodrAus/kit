@@ -34,12 +34,58 @@ pub struct Texture {
 
 // TODO move to game layer?
 #[derive(Default, Copy, Clone)]
-pub struct TextureFrame {
+pub struct TextureFrameDesc {
   pub x: u32,
   pub y: u32,
   pub w: u32,
   pub h: u32,
   pub offset: V2,
+}
+
+/// Defines a subset of a texture that can be drawn. Can be used to define the
+/// placement of a single sprite within a spritesheet.
+///
+/// Internally, stores uv coordinates related to the texture, so access to the
+/// loaded texture must exist so that the full width and height of the texture
+/// can be known.
+///
+/// TODO (wesh) consider whether it would be better to remove direct tie to the
+/// texture_id in order to allow the same sprite dimensions to be reused with
+/// different (equally sized) images.
+pub struct Sprite {
+  pub(crate) img_id: usize,
+  pub(crate) corners: [QuadVert; 4],
+}
+
+impl Sprite {
+  pub fn new(ctx: &Ctx, img_id: usize, x: u32, y: u32, w: u32, h: u32, pivot: V2) {
+    let sheet_w = ctx.gl.images.e[img_id].w as f32;
+    let sheet_h = ctx.gl.images.e[img_id].h as f32;
+
+    let x_max = (x + w) as f32;
+    let y_max = (y + h) as f32;
+
+    let x = x as f32;
+    let y = y as f32;
+    let w = w as f32;
+    let h = h as f32;
+
+    let uv_min = v2(x / sheet_w, y / sheet_h);
+    let uv_max = v2(x_max / sheet_w, y_max / sheet_h);
+
+    let min = V2::ZERO - pivot;
+    let max = min + v2(w, h);
+    let z = 0.0;
+
+    let corners = [
+      QuadVert::new(min.x, min.y, z, uv_min.x, uv_max.y),
+      QuadVert::new(max.x, min.y, z, uv_max.x, uv_max.y),
+      QuadVert::new(min.x, max.y, z, uv_min.x, uv_min.y),
+      QuadVert::new(max.x, max.y, z, uv_max.x, uv_min.y),
+    ];
+
+    Sprite { img_id, corners };
+  }
 }
 
 #[derive(Default, Copy, Clone)]
@@ -81,7 +127,7 @@ pub(crate) type QuadCorners = [QuadVert; 4];
 
 #[derive(Default, Copy, Clone)]
 pub(crate) struct DrawQuad {
-  pub texture_id: usize,
+  pub img_id: usize,
   pub corners: QuadCorners,
   pub transform: M4,
 }
@@ -98,8 +144,15 @@ pub(crate) struct GlShape {
   pub bindings: SgBindings,
 }
 
+#[derive(Default, Copy, Clone)]
+pub(crate) struct Image {
+  pub(crate) e: SgImage,
+  pub(crate) w: u32,
+  pub(crate) h: u32,
+}
+
 pub(crate) struct ImagesCtx {
-  e: [SgImage; MAX_IMAGES],
+  e: [Image; MAX_IMAGES],
   count: usize,
 }
 
