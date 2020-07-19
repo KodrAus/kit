@@ -63,8 +63,25 @@ pub fn draw_shape(ctx: &mut Ctx, shape: Shape, color: V4) {
 }
 
 /// returns the current aspect ratio of the application window
-pub fn get_aspect(_: &mut Ctx) -> f32 {
+pub fn aspect(_: &mut Ctx) -> f32 {
     (sapp_width() as f32) / (sapp_height() as f32)
+}
+
+/// returns the current window width
+pub fn window_width(_: &Ctx) -> u32 {
+    (sapp_width() as u32)
+}
+
+pub fn window_height(_: &Ctx) -> u32 {
+    (sapp_height() as u32)
+}
+
+pub fn default_projection(ctx: &mut Ctx) {
+    let half_w = window_width(ctx) as f32 / 2.0;
+    let half_h = window_height(ctx) as f32 / 2.0;
+    let camera_pos = v3(0.0, 0.0, 6.0);
+    ctx.gl.proj = M4::ortho(-half_w, half_w, -half_h, half_h, -500.0, 500.0);
+    ctx.gl.view = M4::look_at(camera_pos, V3::ZERO, V3::Y);
 }
 
 // TODO unload textures?

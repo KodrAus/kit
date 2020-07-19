@@ -259,8 +259,11 @@ impl Add for V3 {
   }
 }
 
-pub fn v3_sub(a: V3, b: V3) -> V3 {
-  v3(a.x - b.x, a.y - b.y, a.z - b.z)
+impl Sub for V3 {
+  type Output = V3;
+  fn sub(self, b: V3) -> V3 {
+    v3(self.x - b.x, self.y - b.y, self.z - b.z)
+  }
 }
 
 impl Mul<f32> for V3 {
@@ -324,6 +327,10 @@ impl IndexMut<usize> for V4 {
 impl V4 {
   pub const ONE: V4 = V4::all(1.0);
   pub const ZERO: V4 = V4::all(0.0);
+
+  pub const RED: V4 = v4(1.0, 0.0, 0.0, 1.0);
+  pub const GEEN: V4 = v4(0.0, 1.0, 0.0, 1.0);
+  pub const BLUE: V4 = v4(0.0, 0.0, 1.0, 1.0);
 
   pub const fn new(x: f32, y: f32, z: f32, w: f32) -> V4 {
     V4 { x, y, z, w }
@@ -469,7 +476,7 @@ impl M4 {
   pub fn look_at(eye: V3, center: V3, up: V3) -> M4 {
     let mut result: M4 = Default::default();
 
-    let f: V3 = v3_norm(v3_sub(center, eye));
+    let f: V3 = v3_norm(center - eye);
     let s: V3 = v3_norm(v3_cross(f, up));
     let u: V3 = cross3(s, f);
 

@@ -272,7 +272,6 @@ impl<K: KApp> SApp for App<K> {
     match event.event_type {
       SAppEventType::MouseMove => {
         ctx.input.mouse_pos = v2(event.mouse_x, event.mouse_y);
-        println!("{} {}", event.mouse_x, event.mouse_y);
       }
       SAppEventType::MouseScroll => {
         ctx.input.mouse_wheel_y += event.scroll_y;
