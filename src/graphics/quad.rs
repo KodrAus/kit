@@ -130,33 +130,22 @@ pub fn init(ctx: &mut Ctx) {
             src_factor_rgb: SgBlendFactor::SrcAlpha,
             ..Default::default()
         },
+        // depth_stencil: SgDepthStencilState {
+        //     depth_compare_func: SgCompareFunc::LessEqual,
+        //     depth_write_enabled: true,
+        //     ..Default::default()
+        // },
+        // rasterizer: SgRasterizerState {
+        //     cull_mode: SgCullMode::Back,
+        //     sample_count: SAMPLE_COUNT,
+        //     ..Default::default()
+        // },
         ..Default::default()
     });
 }
 
 pub fn present(ctx: &mut Ctx) {
     let shape = &mut ctx.gl.quads.shape;
-
-    // sort quads by game depth first
-    // TODO... only need to deal with *overlapping* quads. Would spacial checks help perf?
-    // TODO sort by distance to camera?
-    for a in 0..ctx.gl.quads.count {
-        for b in (a + 1)..ctx.gl.quads.count {
-            // let quad_a: DrawQuad = ctx.gl.quads.e[a];
-            // let quad_b: DrawQuad = ctx.gl.quads.e[b];
-
-            // // TODO move depth calc into a separate pass?
-            // let quad_pos_a = quad_a.transform[3];
-            // let quad_pos_b = quad_b.transform[3];
-
-            // let quad_depth_a = quad_pos_a[1];
-            // let quad_depth_b = quad_pos_b;
-
-            // if quad_depth_b > quad_depth_a {
-            //     ctx.gl.quads.e.swap(a, b);
-            // }
-        }
-    }
 
     // populate the quad vertex buffer for quad vertices
     // we need to strip out extra info (uniforms) and create a contiguous array of vertices

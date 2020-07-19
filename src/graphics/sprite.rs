@@ -2,20 +2,15 @@ use crate::graphics::quad::draw_quad;
 use crate::math::*;
 use crate::*;
 
-/**
- * This draw command is a special alias for `draw_quad` which processes
- * a spritesheet (Texture) and draws a segment of it (TextureFrame)
- * onto the quad.
- */
-pub fn draw_sprite(
-    ctx: &mut Ctx,
-    pos: V2,
-    texture: Texture,
-    frame: TextureFrame,
-    scale: f32,
-    z: f32,
-) {
-    if scale == 0.0 {
+/// This draw command is a special alias for `draw_quad` which processes
+/// a spritesheet (Texture) and draws a segment of it (TextureFrame)
+/// onto the quad.
+///
+/// Note: Future versions may iterate on the TextureFrame format so that some
+/// of this math can be pre-baked (for example, a TextureFrame's boundaries
+/// could already be expressed in UVs without needing extra calculation here).
+pub fn draw_sprite(ctx: &mut Ctx, pos: V2, texture: Texture, frame: TextureFrame, scale: f32) {
+    if near_zero(scale) {
         // TODO maybe near_zero?
         return;
     }
@@ -30,10 +25,10 @@ pub fn draw_sprite(
     let max = min + v2(frame.w as f32, frame.h as f32);
 
     let corners = [
-        QuadVert::new(min.x, min.y, z, uv_l, 1.0),
-        QuadVert::new(max.x, min.y, z, uv_r, 1.0),
-        QuadVert::new(min.x, max.y, z, uv_l, 0.0),
-        QuadVert::new(max.x, max.y, z, uv_r, 0.0),
+        QuadVert::new(min.x, min.y, 0.0, uv_l, 1.0),
+        QuadVert::new(max.x, min.y, 0.0, uv_r, 1.0),
+        QuadVert::new(min.x, max.y, 0.0, uv_l, 0.0),
+        QuadVert::new(max.x, max.y, 0.0, uv_r, 0.0),
     ];
 
     let mut transform = M4::diag(1.0);
@@ -41,7 +36,7 @@ pub fn draw_sprite(
     // translation
     transform.e[3][0] = pos.x;
     transform.e[3][1] = pos.y;
-    // quad.model.e[3][2] = sprite.pos.z;
+    // transform.e[3][2] = pos.z; // no z for sprites; they're 2D
 
     // scale
     transform.e[0][0] = scale;
