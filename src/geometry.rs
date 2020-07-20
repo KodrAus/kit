@@ -1,3 +1,7 @@
+//! Structures for defining geometry primitives.
+//!
+//! TODO move hittesting to a separate crate?
+
 use crate::math::*;
 use rand;
 use std::fmt;
@@ -13,13 +17,13 @@ impl Interval {
   }
 }
 
-#[derive(Copy, Clone)]
+#[derive(Default, Copy, Clone)]
 pub struct Circle {
   pub center: V2,
   pub r: f32,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Default, Copy, Clone)]
 pub struct Rect {
   pub min_x: f32,
   pub min_y: f32,
@@ -27,7 +31,7 @@ pub struct Rect {
   pub max_y: f32,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Default, Copy, Clone)]
 pub struct LineSegment {
   pub a: V2,
   pub b: V2,
@@ -40,11 +44,13 @@ impl LineSegment {
   }
 }
 
+#[derive(Default, Copy, Clone)]
 pub struct OverlapResult {
   pub normal: V2,
   pub distance: f32,
 }
 
+#[derive(Default, Copy, Clone)]
 pub struct SweepResult {
   pub normal: V2,
   pub t: f32,
