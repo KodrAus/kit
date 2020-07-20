@@ -22,6 +22,7 @@ Missing features abound. Use at your own risk (I wouldn't even describe this as 
 - hot-reloading of game for rapid iteration
 - example projects
 - multiple rendering layers (to overlay a gui, for example)
+- asset un-loading (for area transitions and such)
 
 ## Getting started
 
