@@ -1,6 +1,27 @@
 # kit
 
-Kit is a very raw 3D game engine created for learning game engine coding and maybe someday it'll be a reasonable foundation for game jam projects.
+Kit is a very raw 3D game engine. I made it to learn game engine coding, and someday I'd like it to be a reasonable foundation for game jam projects.
+
+Kit will support 2D as well as 3D, but if you're looking for a 2D focused engine, I recommend checking out [ggez]() instead, as that seems really solid
+and is way further along in development.
+
+## TODO
+
+Missing features abound. Use at your own risk (I wouldn't even describe this as usable at this point). Things that I'm currently planning to add:
+
+- gamepad support
+- full keyboard input support
+- audio
+- documentation might be nice /s
+- sensible (or extensible? configurable?) limits for draw commands (they're highly arbitrary right now)
+- complete vector math library (maybe I'll switch to glam later? my hand-rolled version has many holes and inconsistencies at the moment)
+- investigate using wgpu-rs instead of sokol (wgpu-rs is likely a more Rust-centric approach)
+- 3D model loading
+- lighting (maybe)
+- line, circle, point primitives in drawing commands are always drawn *over* models and *under* sprites - should fix depth handling
+- hot-reloading of game for rapid iteration
+- example projects
+- multiple rendering layers (to overlay a gui, for example)
 
 ## Getting started
 
