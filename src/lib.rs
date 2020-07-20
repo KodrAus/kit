@@ -6,11 +6,15 @@
 
 pub mod geometry;
 pub mod graphics;
-pub mod math;
+mod math;
 
-use math::*;
+// re-exporting for convenient importing by consumers
+pub use math::*;
+
+// re-exporting for convenient obfuscation - I may replace sokol_app with winit
 pub use sokol::app::SAppDesc as KAppDesc;
 pub use sokol::app::SAppKeycode as Keycode;
+
 use sokol::app::*;
 use sokol::gfx::*;
 
@@ -57,35 +61,16 @@ pub struct Sprite {
   pub(crate) corners: [QuadVert; 4],
 }
 
-impl Sprite {
-  pub fn new(ctx: &Ctx, img_id: usize, x: u32, y: u32, w: u32, h: u32, pivot: V2) {
-    let sheet_w = ctx.gl.images.e[img_id].w as f32;
-    let sheet_h = ctx.gl.images.e[img_id].h as f32;
+impl Sprite {}
 
-    let x_max = (x + w) as f32;
-    let y_max = (y + h) as f32;
-
-    let x = x as f32;
-    let y = y as f32;
-    let w = w as f32;
-    let h = h as f32;
-
-    let uv_min = v2(x / sheet_w, y / sheet_h);
-    let uv_max = v2(x_max / sheet_w, y_max / sheet_h);
-
-    let min = V2::ZERO - pivot;
-    let max = min + v2(w, h);
-    let z = 0.0;
-
-    let corners = [
-      QuadVert::new(min.x, min.y, z, uv_min.x, uv_max.y),
-      QuadVert::new(max.x, min.y, z, uv_max.x, uv_max.y),
-      QuadVert::new(min.x, max.y, z, uv_min.x, uv_min.y),
-      QuadVert::new(max.x, max.y, z, uv_max.x, uv_min.y),
-    ];
-
-    Sprite { img_id, corners };
-  }
+/// Primarily used for images, this expresses a point within the
+/// image that will be aligned to the image's position coordinates
+/// and which will be the center of any scaling or rotation applied
+/// to the image.
+pub enum Pivot {
+  Center,
+  Px(V2),
+  Percent(V2),
 }
 
 #[derive(Default, Copy, Clone)]
