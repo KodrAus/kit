@@ -238,21 +238,21 @@ pub struct GraphicsCtx {
 #[derive(Default)]
 pub struct ButtonState {
   /// the number of presses during the previous frame
-  prev_downs: u32,
+  pub prev_down: u32,
   /// the number of releases during the previous frame
-  prev_ups: u32,
+  pub prev_up: u32,
   /// the number of presses during the current frame
-  downs: u32,
+  pub down: u32,
   /// the number of releases during the current frame
-  ups: u32,
+  pub up: u32,
 }
 
 impl ButtonState {
   pub(crate) fn frame_end(&mut self) {
-    self.prev_downs = self.downs;
-    self.prev_ups = self.ups;
-    self.downs = 0;
-    self.ups = 0;
+    self.prev_down = self.down;
+    self.prev_up = self.up;
+    self.down = 0;
+    self.up = 0;
   }
 }
 
@@ -274,6 +274,9 @@ pub struct MouseCtx {
 
 impl MouseCtx {
   pub(crate) fn frame_end(&mut self) {
+    if (self.left.down > 0) {
+      println!("engine mouse down {}", self.left.down);
+    }
     self.scroll_x = 0.0;
     self.scroll_y = 0.0;
     self.prev_pos = self.pos;
@@ -379,15 +382,15 @@ impl<K: KApp> SApp for App<K> {
         ctx.input.mouse.scroll_y += event.scroll_y;
       }
       SAppEventType::MouseDown => match event.mouse_button {
-        SAppMouseButton::Left => ctx.input.mouse.left.downs += 1,
-        SAppMouseButton::Right => ctx.input.mouse.right.downs += 1,
-        SAppMouseButton::Middle => ctx.input.mouse.middle.downs += 1,
+        SAppMouseButton::Left => ctx.input.mouse.left.down += 1,
+        SAppMouseButton::Right => ctx.input.mouse.right.down += 1,
+        SAppMouseButton::Middle => ctx.input.mouse.middle.down += 1,
         _ => {}
       },
       SAppEventType::MouseUp => match event.mouse_button {
-        SAppMouseButton::Left => ctx.input.mouse.left.ups += 1,
-        SAppMouseButton::Right => ctx.input.mouse.right.ups += 1,
-        SAppMouseButton::Middle => ctx.input.mouse.middle.ups += 1,
+        SAppMouseButton::Left => ctx.input.mouse.left.up += 1,
+        SAppMouseButton::Right => ctx.input.mouse.right.up += 1,
+        SAppMouseButton::Middle => ctx.input.mouse.middle.up += 1,
         _ => {}
       },
       SAppEventType::KeyDown => match event.key_code {
