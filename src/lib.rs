@@ -234,9 +234,60 @@ pub struct GraphicsCtx {
   pub(crate) pass_action: SgPassAction,
 }
 
+/// describes the most recent mouse button state
+#[derive(Default)]
+pub struct ButtonState {
+  /// the number of presses during the previous frame
+  prev_downs: u32,
+  /// the number of releases during the previous frame
+  prev_ups: u32,
+  /// the number of presses during the current frame
+  downs: u32,
+  /// the number of releases during the current frame
+  ups: u32,
+}
+
+impl ButtonState {
+  pub(crate) fn frame_end(&mut self) {
+    self.prev_downs = self.downs;
+    self.prev_ups = self.ups;
+    self.downs = 0;
+    self.ups = 0;
+  }
+}
+
+/// read from this struct to access information about mouse input state
+#[derive(Default)]
+pub struct MouseCtx {
+  pub left: ButtonState,
+  pub middle: ButtonState,
+  pub right: ButtonState,
+
+  // TODO should there be a way to get mouse position in world coordinates? ie. reverse view & projeection?
+  pub pos: V2,
+  pub prev_pos: V2,
+
+  /// contains the amount of mouse wheel movement since the previous frame
+  pub scroll_x: f32,
+  pub scroll_y: f32,
+}
+
+impl MouseCtx {
+  pub(crate) fn frame_end(&mut self) {
+    self.scroll_x = 0.0;
+    self.scroll_y = 0.0;
+    self.prev_pos = self.pos;
+    self.left.frame_end();
+    self.middle.frame_end();
+    self.right.frame_end();
+  }
+}
+
 /// Holds input state. Read from this during a game update to consume player inputs.
 #[derive(Default)]
 pub struct InputCtx {
+  pub mouse: MouseCtx,
+
   // TODO add multiple controllers
   pub l_stick: V2,
   pub r_stick: V2,
@@ -251,13 +302,7 @@ pub struct InputCtx {
   pub dir_r: bool,
   pub action_pressed: bool,
   pub action_released: bool,
-  //
-  pub mouse_wheel_y: f32,
-  // TODO mouse_wheel_x?
-
-  // TODO should there be a way to get mouse position in world coordinates? ie. reverse view & projeection?
-  pub mouse_pos: V2,
-  pub mouse_prev_pos: V2,
+  // TODO touch input
 }
 
 // TODO should arrays in here be Vec<T> instead? Heap instead of stack?
@@ -304,9 +349,10 @@ impl<K: KApp> SApp for App<K> {
     let ctx = &mut self.ctx;
     ctx.gl.view_proj = ctx.gl.proj * ctx.gl.view;
     self.app.frame(ctx);
-    ctx.input.mouse_wheel_y = 0.0;
-    ctx.input.mouse_prev_pos = ctx.input.mouse_pos;
     graphics::present(ctx);
+
+    // input cleanup
+    ctx.input.mouse.frame_end();
   }
 
   fn sapp_cleanup(&mut self) {
@@ -326,11 +372,24 @@ impl<K: KApp> SApp for App<K> {
     // TODO... sapp for events vs sdl? how do I handle gamepad input?
     match event.event_type {
       SAppEventType::MouseMove => {
-        ctx.input.mouse_pos = v2(event.mouse_x, event.mouse_y);
+        ctx.input.mouse.pos = v2(event.mouse_x, event.mouse_y);
       }
       SAppEventType::MouseScroll => {
-        ctx.input.mouse_wheel_y += event.scroll_y;
+        ctx.input.mouse.scroll_x += event.scroll_x;
+        ctx.input.mouse.scroll_y += event.scroll_y;
       }
+      SAppEventType::MouseDown => match event.mouse_button {
+        SAppMouseButton::Left => ctx.input.mouse.left.downs += 1,
+        SAppMouseButton::Right => ctx.input.mouse.right.downs += 1,
+        SAppMouseButton::Middle => ctx.input.mouse.middle.downs += 1,
+        _ => {}
+      },
+      SAppEventType::MouseUp => match event.mouse_button {
+        SAppMouseButton::Left => ctx.input.mouse.left.ups += 1,
+        SAppMouseButton::Right => ctx.input.mouse.right.ups += 1,
+        SAppMouseButton::Middle => ctx.input.mouse.middle.ups += 1,
+        _ => {}
+      },
       SAppEventType::KeyDown => match event.key_code {
         SAppKeycode::KeyW => ctx.input.dir_u = true,
         SAppKeycode::KeyA => ctx.input.dir_l = true,

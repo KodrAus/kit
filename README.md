@@ -26,6 +26,7 @@ Missing features abound. Use at your own risk (I wouldn't even describe this as 
 - multiple rendering layers (to overlay a gui, for example)
 - asset un-loading (for area transitions and such)
 - spritesheet loading from some easily-editable common format
+- touch input for mobile
 
 ## Getting started
 
