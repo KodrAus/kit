@@ -164,9 +164,9 @@ pub fn present(ctx: &mut Ctx) {
     sg_begin_default_pass(&ctx.gl.pass_action, sapp_width(), sapp_height());
 
     mesh::present(ctx);
+    quad::present(ctx);
     point::present(ctx);
     line::present(ctx);
-    quad::present(ctx);
 
     // clear all draw calls
     ctx.gl.quads.count = 0;
