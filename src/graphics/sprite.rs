@@ -91,8 +91,7 @@ pub fn sprite(ctx: &Ctx, img_id: usize, x: u32, y: u32, w: u32, h: u32, pivot: P
 /// calculates quad corners for the given sprite dimensions & uv coordinates
 fn sprite_corners(w: f32, h: f32, uv: Rect, pivot: Pivot) -> QuadCorners {
     let (min_x, min_y) = match pivot {
-        Pivot::Px(pivot_px) => (-pivot_px.x, -pivot_px.y),
-        Pivot::Percent(pivot_percent) => (-pivot_percent.x * w, -pivot_percent.y * h),
+        Pivot::Px(x, y) => (-x, -y),
         Pivot::Center => (-w * 0.5, -h * 0.5),
     };
     let max_x = min_x + w;

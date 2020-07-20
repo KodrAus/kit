@@ -73,8 +73,7 @@ pub struct Sprite {
 #[derive(Copy, Clone)]
 pub enum Pivot {
   Center,
-  Px(V2),
-  Percent(V2),
+  Px(f32, f32),
 }
 
 #[derive(Default, Copy, Clone)]
