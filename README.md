@@ -12,6 +12,7 @@ Missing features abound. Use at your own risk (I wouldn't even describe this as 
 
 - gamepad support
 - full keyboard input support
+- mouse input support
 - audio
 - documentation might be nice /s
 - sensible (or extensible? configurable?) limits for draw commands (they're highly arbitrary right now)
