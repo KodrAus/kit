@@ -263,6 +263,10 @@ pub struct InputCtx {
 
 // TODO should arrays in here be Vec<T> instead? Heap instead of stack?
 
+/// Engine state. Most engine apis operate by taking this state as the first
+/// parameter. It's constructed in `run` so you don't have to build it,
+/// and `run` will pass `ctx` to the api of your application. See `KApp`
+/// for the API your game should implement.
 #[derive(Default)]
 pub struct Ctx {
   pub input: InputCtx,
@@ -277,9 +281,16 @@ struct App<K: KApp> {
   app: K,
 }
 
+/// Your game should implement this trait.
 pub trait KApp: 'static + Sized {
+  /// required so the engine can construct your game object
   fn new() -> Self;
+
+  /// called once after the window is initialized
   fn init(&mut self, ctx: &mut Ctx);
+
+  /// called each frame of the main loop - loop behavior and
+  /// frequency can be configured via `KAppDesc`
   fn frame(&mut self, ctx: &mut Ctx);
 }
 
