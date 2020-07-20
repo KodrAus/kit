@@ -66,7 +66,7 @@ pub fn draw_image(ctx: &mut Ctx, img_id: usize, pos: V2, scale: f32, pivot: Pivo
 
 /// Sprite builder. The result can be consumed immediately by `draw_sprite` or stored
 /// to avoid recalculating the sprite's corners every frame.
-pub fn sprite(ctx: &Ctx, img_id: usize, x: u32, y: u32, w: u32, h: u32, pivot: Pivot) {
+pub fn sprite(ctx: &Ctx, img_id: usize, x: u32, y: u32, w: u32, h: u32, pivot: Pivot) -> Sprite {
     let sheet_w = ctx.gl.images.e[img_id].w as f32;
     let sheet_h = ctx.gl.images.e[img_id].h as f32;
 
@@ -85,7 +85,7 @@ pub fn sprite(ctx: &Ctx, img_id: usize, x: u32, y: u32, w: u32, h: u32, pivot: P
         max_y: y_max / sheet_h,
     };
     let corners = sprite_corners(w, h, uv, pivot);
-    Sprite { img_id, corners };
+    Sprite { img_id, corners }
 }
 
 /// calculates quad corners for the given sprite dimensions & uv coordinates

@@ -51,22 +51,26 @@ pub struct TextureFrameDesc {
 ///
 /// Internally, stores uv coordinates related to the texture, so access to the
 /// loaded texture must exist so that the full width and height of the texture
-/// can be known.
+/// can be known. Note that uv coordinates are relative to the lower left corner
+/// of the image.
 ///
 /// TODO (wesh) consider whether it would be better to remove direct tie to the
 /// texture_id in order to allow the same sprite dimensions to be reused with
 /// different (equally sized) images.
+#[derive(Default, Clone, Copy)]
 pub struct Sprite {
   pub(crate) img_id: usize,
-  pub(crate) corners: [QuadVert; 4],
+  pub(crate) corners: QuadCorners,
 }
-
-impl Sprite {}
 
 /// Primarily used for images, this expresses a point within the
 /// image that will be aligned to the image's position coordinates
 /// and which will be the center of any scaling or rotation applied
 /// to the image.
+///
+/// Pivot point coordinates, like Sprites and Quad uvs, are relative
+/// to the lower-left corner of the Sprite in question.
+#[derive(Copy, Clone)]
 pub enum Pivot {
   Center,
   Px(V2),
