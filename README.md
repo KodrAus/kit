@@ -1,9 +1,10 @@
 # kit
 
+** WARNING: VERY EARLY WIP **
+
 Kit is a very raw 3D game engine. I made it to learn game engine coding, and someday I'd like it to be a reasonable foundation for game jam projects.
 
-Kit will support 2D as well as 3D, but if you're looking for a 2D focused engine, I recommend checking out [ggez]() instead, as that seems really solid
-and is way further along in development.
+Kit will support 2D as well as 3D, but if you're looking for a 2D focused engine, I recommend checking out [ggez]() instead, as that seems really solid and is way further along in development.
 
 ## TODO
 
@@ -23,6 +24,7 @@ Missing features abound. Use at your own risk (I wouldn't even describe this as 
 - example projects
 - multiple rendering layers (to overlay a gui, for example)
 - asset un-loading (for area transitions and such)
+- spritesheet loading from some easily-editable common format
 
 ## Getting started
 
