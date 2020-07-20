@@ -218,6 +218,7 @@ impl Default for MeshCtx {
   }
 }
 
+// TODO add api for setting bg, proj, and view and then hide the whole GraphicsCtx from the external api
 #[derive(Default)]
 pub struct GraphicsCtx {
   pub bg: V3,
@@ -234,36 +235,38 @@ pub struct GraphicsCtx {
   pub(crate) pass_action: SgPassAction,
 }
 
+/// Holds input state. Read from this during a game update to consume player inputs.
 #[derive(Default)]
 pub struct InputCtx {
+  // TODO add multiple controllers
   pub l_stick: V2,
   pub r_stick: V2,
+
+  // TODO should this be pub? Maybe hide it as an implementation detail
   pub quit: bool,
+  // TODO replace these with actual keyboard state - what to do with the keys should be
+  // a detail the game provides.
   pub dir_u: bool,
   pub dir_d: bool,
   pub dir_l: bool,
   pub dir_r: bool,
   pub action_pressed: bool,
   pub action_released: bool,
+  //
   pub mouse_wheel_y: f32,
+  // TODO mouse_wheel_x?
+
+  // TODO should there be a way to get mouse position in world coordinates? ie. reverse view & projeection?
   pub mouse_pos: V2,
   pub mouse_prev_pos: V2,
 }
 
 // TODO should arrays in here be Vec<T> instead? Heap instead of stack?
 
+#[derive(Default)]
 pub struct Ctx {
   pub input: InputCtx,
   pub gl: GraphicsCtx,
-}
-
-impl Default for Ctx {
-  fn default() -> Self {
-    Self {
-      input: Default::default(),
-      gl: Default::default(),
-    }
-  }
 }
 
 // ----------------------------------------------------------------------------
