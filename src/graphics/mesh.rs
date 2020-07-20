@@ -1,14 +1,15 @@
 use crate::*;
+use glam::*;
 use std::mem;
 use std::mem::size_of_val;
 
 const SAMPLE_COUNT: i32 = 4;
 
 pub(crate) struct MeshVert {
-    pub pos: V3,
-    //   pub uv: V2,
-    //   pub normal: V3, // TODO store and use these to smooth faces
-    pub color: V4,
+    pub pos: Vec3,
+    //   pub uv: Vec2,
+    //   pub normal: Vec3, // TODO store and use these to smooth faces
+    pub color: Vec4,
 }
 
 // struct Model {
@@ -19,7 +20,7 @@ pub(crate) struct MeshVert {
 //   // TODO textures
 // } model_t,
 
-pub fn draw_mesh(ctx: &mut Ctx, mesh_i: usize, transform: M4) {
+pub fn draw_mesh(ctx: &mut Ctx, mesh_i: usize, transform: Mat4) {
     let mesh = &mut ctx.gl.mesh;
     let i = mesh.count;
     if i == MAX_MESHES {
@@ -37,100 +38,100 @@ pub fn init(ctx: &mut Ctx) {
     // cube vertex buffer
     let vertices: [MeshVert; 24] = [
         MeshVert {
-            pos: v3(-0.5, -0.5, -0.5),
-            color: v4(1.0, 0.0, 0.0, 1.0),
+            pos: vec3(-0.5, -0.5, -0.5),
+            color: vec4(1.0, 0.0, 0.0, 1.0),
         },
         MeshVert {
-            pos: v3(0.5, -0.5, -0.5),
-            color: v4(1.0, 0.0, 0.0, 1.0),
+            pos: vec3(0.5, -0.5, -0.5),
+            color: vec4(1.0, 0.0, 0.0, 1.0),
         },
         MeshVert {
-            pos: v3(0.5, 0.5, -0.5),
-            color: v4(1.0, 0.0, 0.0, 1.0),
+            pos: vec3(0.5, 0.5, -0.5),
+            color: vec4(1.0, 0.0, 0.0, 1.0),
         },
         MeshVert {
-            pos: v3(-0.5, 0.5, -0.5),
-            color: v4(1.0, 0.0, 0.0, 1.0),
+            pos: vec3(-0.5, 0.5, -0.5),
+            color: vec4(1.0, 0.0, 0.0, 1.0),
         },
         MeshVert {
-            pos: v3(-0.5, -0.5, 0.5),
-            color: v4(0.0, 1.0, 0.0, 1.0),
+            pos: vec3(-0.5, -0.5, 0.5),
+            color: vec4(0.0, 1.0, 0.0, 1.0),
         },
         MeshVert {
-            pos: v3(0.5, -0.5, 0.5),
-            color: v4(0.0, 1.0, 0.0, 1.0),
+            pos: vec3(0.5, -0.5, 0.5),
+            color: vec4(0.0, 1.0, 0.0, 1.0),
         },
         MeshVert {
-            pos: v3(0.5, 0.5, 0.5),
-            color: v4(0.0, 1.0, 0.0, 1.0),
+            pos: vec3(0.5, 0.5, 0.5),
+            color: vec4(0.0, 1.0, 0.0, 1.0),
         },
         MeshVert {
-            pos: v3(-0.5, 0.5, 0.5),
-            color: v4(0.0, 1.0, 0.0, 1.0),
+            pos: vec3(-0.5, 0.5, 0.5),
+            color: vec4(0.0, 1.0, 0.0, 1.0),
         },
         MeshVert {
-            pos: v3(-0.5, -0.5, -0.5),
-            color: v4(0.0, 0.0, 1.0, 1.0),
+            pos: vec3(-0.5, -0.5, -0.5),
+            color: vec4(0.0, 0.0, 1.0, 1.0),
         },
         MeshVert {
-            pos: v3(-0.5, 0.5, -0.5),
-            color: v4(0.0, 0.0, 1.0, 1.0),
+            pos: vec3(-0.5, 0.5, -0.5),
+            color: vec4(0.0, 0.0, 1.0, 1.0),
         },
         MeshVert {
-            pos: v3(-0.5, 0.5, 0.5),
-            color: v4(0.0, 0.0, 1.0, 1.0),
+            pos: vec3(-0.5, 0.5, 0.5),
+            color: vec4(0.0, 0.0, 1.0, 1.0),
         },
         MeshVert {
-            pos: v3(-0.5, -0.5, 0.5),
-            color: v4(0.0, 0.0, 1.0, 1.0),
+            pos: vec3(-0.5, -0.5, 0.5),
+            color: vec4(0.0, 0.0, 1.0, 1.0),
         },
         MeshVert {
-            pos: v3(0.5, -0.5, -0.5),
-            color: v4(1.0, 0.5, 0.0, 1.0),
+            pos: vec3(0.5, -0.5, -0.5),
+            color: vec4(1.0, 0.5, 0.0, 1.0),
         },
         MeshVert {
-            pos: v3(0.5, 0.5, -0.5),
-            color: v4(1.0, 0.5, 0.0, 1.0),
+            pos: vec3(0.5, 0.5, -0.5),
+            color: vec4(1.0, 0.5, 0.0, 1.0),
         },
         MeshVert {
-            pos: v3(0.5, 0.5, 0.5),
-            color: v4(1.0, 0.5, 0.0, 1.0),
+            pos: vec3(0.5, 0.5, 0.5),
+            color: vec4(1.0, 0.5, 0.0, 1.0),
         },
         MeshVert {
-            pos: v3(0.5, -0.5, 0.5),
-            color: v4(1.0, 0.5, 0.0, 1.0),
+            pos: vec3(0.5, -0.5, 0.5),
+            color: vec4(1.0, 0.5, 0.0, 1.0),
         },
         MeshVert {
-            pos: v3(-0.5, -0.5, -0.5),
-            color: v4(0.0, 0.5, 1.0, 1.0),
+            pos: vec3(-0.5, -0.5, -0.5),
+            color: vec4(0.0, 0.5, 1.0, 1.0),
         },
         MeshVert {
-            pos: v3(-0.5, -0.5, 0.5),
-            color: v4(0.0, 0.5, 1.0, 1.0),
+            pos: vec3(-0.5, -0.5, 0.5),
+            color: vec4(0.0, 0.5, 1.0, 1.0),
         },
         MeshVert {
-            pos: v3(0.5, -0.5, 0.5),
-            color: v4(0.0, 0.5, 1.0, 1.0),
+            pos: vec3(0.5, -0.5, 0.5),
+            color: vec4(0.0, 0.5, 1.0, 1.0),
         },
         MeshVert {
-            pos: v3(0.5, -0.5, -0.5),
-            color: v4(0.0, 0.5, 1.0, 1.0),
+            pos: vec3(0.5, -0.5, -0.5),
+            color: vec4(0.0, 0.5, 1.0, 1.0),
         },
         MeshVert {
-            pos: v3(-0.5, 0.5, -0.5),
-            color: v4(1.0, 0.0, 0.5, 1.0),
+            pos: vec3(-0.5, 0.5, -0.5),
+            color: vec4(1.0, 0.0, 0.5, 1.0),
         },
         MeshVert {
-            pos: v3(-0.5, 0.5, 0.5),
-            color: v4(1.0, 0.0, 0.5, 1.0),
+            pos: vec3(-0.5, 0.5, 0.5),
+            color: vec4(1.0, 0.0, 0.5, 1.0),
         },
         MeshVert {
-            pos: v3(0.5, 0.5, 0.5),
-            color: v4(1.0, 0.0, 0.5, 1.0),
+            pos: vec3(0.5, 0.5, 0.5),
+            color: vec4(1.0, 0.0, 0.5, 1.0),
         },
         MeshVert {
-            pos: v3(0.5, 0.5, -0.5),
-            color: v4(1.0, 0.0, 0.5, 1.0),
+            pos: vec3(0.5, 0.5, -0.5),
+            color: vec4(1.0, 0.0, 0.5, 1.0),
         },
     ];
 

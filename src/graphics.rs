@@ -11,6 +11,7 @@ use crate::geometry::*;
 use crate::math::*;
 use crate::*;
 use core::mem::size_of;
+use glam::*;
 use image;
 use image::*;
 use std::path::Path;
@@ -19,8 +20,8 @@ const BYTES_POINTS: usize = size_of::<DrawPoint>() * MAX_POINTS;
 const BYTES_LINES: usize = size_of::<DrawLine>() * MAX_LINES;
 
 // struct MeshVsParams {
-//     model: M4,
-//     view_proj: M4,
+//     model: Mat4,
+//     view_proj: Mat4,
 // }
 
 pub fn load_img(ctx: &mut Ctx, filename: &str) -> Texture {
@@ -47,14 +48,14 @@ pub use rect::draw_rect;
 pub use sprite::*;
 
 // TODO reimplement
-// pub fn draw_mesh(&mut self, mesh_i: u8, transform: M4) {
+// pub fn draw_mesh(&mut self, mesh_i: u8, transform: Mat4) {
 //   let i = self.num_meshes;
 //   self.num_meshes += 1;
 //   self.meshes[i] = DrawMesh { mesh_i, transform };
 // }
 
 /// general draw call for drawing a shape primitive
-pub fn draw_shape(ctx: &mut Ctx, shape: Shape, color: V4) {
+pub fn draw_shape(ctx: &mut Ctx, shape: Shape, color: Vec4) {
     match shape {
         Shape::Point(p) => draw_point(ctx, p, color),
         Shape::Rect(r) => draw_rect(ctx, r, color),
@@ -79,9 +80,9 @@ pub fn window_height(_: &Ctx) -> u32 {
 pub fn default_projection(ctx: &mut Ctx) {
     let half_w = window_width(ctx) as f32 / 2.0;
     let half_h = window_height(ctx) as f32 / 2.0;
-    let camera_pos = v3(0.0, 0.0, 6.0);
-    ctx.gl.proj = M4::ortho(-half_w, half_w, -half_h, half_h, -500.0, 500.0);
-    ctx.gl.view = M4::look_at(camera_pos, V3::ZERO, V3::Y);
+    let camera_pos = vec3(0.0, 0.0, 6.0);
+    ctx.gl.proj = Mat4::orthographic_rh_gl(-half_w, half_w, -half_h, half_h, -500.0, 500.0);
+    ctx.gl.view = Mat4::look_at_rh(camera_pos, Vec3::zero(), Vec3::unit_y());
 }
 
 // TODO unload textures?
@@ -123,7 +124,7 @@ fn gl_register_img(ctx: &mut Ctx, img: DynamicImage) -> Texture {
 /// this standard uniform block in their shaders.
 fn std_uniform_block<'a>() -> SgShaderUniformBlockDesc<'a> {
     SgShaderUniformBlockDesc {
-        size: size_of::<M4>() as i32,
+        size: size_of::<Mat4>() as i32,
         uniforms: vec![SgShaderUniformDesc {
             name: "projection",
             uniform_type: SgUniformType::Mat4,
@@ -139,8 +140,8 @@ pub fn init(ctx: &mut Ctx) {
         ..Default::default()
     });
 
-    ctx.gl.proj = M4::IDENTITY;
-    ctx.gl.view = M4::IDENTITY;
+    ctx.gl.proj = Mat4::identity();
+    ctx.gl.view = Mat4::identity();
 
     ctx.gl.pass_action = SgPassAction {
         colors: vec![SgColorAttachmentAction {

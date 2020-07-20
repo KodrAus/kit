@@ -3,14 +3,14 @@ use crate::math::*;
 use crate::*;
 use std::mem::size_of;
 
-pub fn draw_line(ctx: &mut Ctx, a: V3, b: V3, color: V4) {
+pub fn draw_line(ctx: &mut Ctx, point_a: Vec3, point_b: Vec3, color: Vec4) {
     // TODO there's probably a more idiomatic Rust way to do this, or a library I can use...
     let i = ctx.gl.lines.count;
     ctx.gl.lines.count += 1;
     ctx.gl.lines.e[i] = DrawLine {
-        point_a: v3(a.x, a.y, 0.0),
+        point_a,
         color_a: color,
-        point_b: v3(b.x, b.y, 0.0),
+        point_b,
         color_b: color,
     };
 }
@@ -95,7 +95,7 @@ pub fn present(ctx: &mut Ctx) {
         SgShaderStage::Vertex,
         0,
         &ctx.gl.view_proj,
-        size_of::<M4>() as i32,
+        size_of::<Mat4>() as i32,
     );
     sg_draw(0, (ctx.gl.lines.count * 2) as i32, 1);
 }

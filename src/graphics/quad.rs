@@ -172,20 +172,20 @@ pub fn present(ctx: &mut Ctx) {
         // cancel out some parts of the model_shape view matrix in order to
         // billboard the sprite
         // https://www.geeks3d.com/20140807/billboarding-vertex-shader-glsl/
-        mv.e[0][0] = transform.e[0][0];
-        mv.e[0][1] = 0.0;
-        mv.e[0][2] = 0.0;
+        // mv.e[0][0] = transform.e[0][0];
+        // mv.e[0][1] = 0.0;
+        // mv.e[0][2] = 0.0;
 
-        mv.e[1][0] = 0.0;
-        mv.e[1][1] = transform.e[1][1];
-        mv.e[1][2] = 0.0;
+        // mv.e[1][0] = 0.0;
+        // mv.e[1][1] = transform.e[1][1];
+        // mv.e[1][2] = 0.0;
 
-        mv.e[2][0] = 0.0;
-        mv.e[2][1] = 0.0;
-        mv.e[2][2] = transform.e[2][2];
+        // mv.e[2][0] = 0.0;
+        // mv.e[2][1] = 0.0;
+        // mv.e[2][2] = transform.e[2][2];
 
         let mvp = ctx.gl.proj * mv;
-        sg_apply_uniforms(SgShaderStage::Vertex, 0, &mvp, size_of::<M4>() as i32);
+        sg_apply_uniforms(SgShaderStage::Vertex, 0, &mvp, size_of::<Mat4>() as i32);
         let img_id = quad.img_id;
         shape.bindings.fs_images[0] = ctx.gl.images.e[img_id].e;
 

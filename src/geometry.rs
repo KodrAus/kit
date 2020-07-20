@@ -3,6 +3,7 @@
 //! TODO move hittesting to a separate crate?
 
 use crate::math::*;
+use glam::*;
 use rand;
 use std::fmt;
 
@@ -19,7 +20,7 @@ impl Interval {
 
 #[derive(Default, Copy, Clone)]
 pub struct Circle {
-  pub center: V2,
+  pub center: Vec2,
   pub r: f32,
 }
 
@@ -33,50 +34,52 @@ pub struct Rect {
 
 #[derive(Default, Copy, Clone)]
 pub struct LineSegment {
-  pub a: V2,
-  pub b: V2,
-  pub normal: V2,
+  pub a: Vec2,
+  pub b: Vec2,
+  pub normal: Vec2,
 }
 
 impl LineSegment {
-  pub fn new(a: V2, b: V2, normal: V2) -> LineSegment {
+  pub fn new(a: Vec2, b: Vec2, normal: Vec2) -> LineSegment {
     LineSegment { a, b, normal }
   }
 }
 
 #[derive(Default, Copy, Clone)]
 pub struct OverlapResult {
-  pub normal: V2,
+  pub normal: Vec2,
   pub distance: f32,
 }
 
 #[derive(Default, Copy, Clone)]
 pub struct SweepResult {
-  pub normal: V2,
+  pub normal: Vec2,
   pub t: f32,
 }
 
 #[derive(Copy, Clone)]
 pub enum Shape {
-  Point(V2),
+  Point(Vec2),
   Circle(Circle),
   Rect(Rect),
 }
 
 impl Default for Shape {
   fn default() -> Self {
-    Shape::Point(V2::ZERO)
+    Shape::Point(Vec2::zero())
   }
 }
 
 impl fmt::Display for Shape {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     match self {
-      Shape::Point(p) => write!(f, "Point ({}, {})", p.x, p.y),
+      Shape::Point(p) => write!(f, "Point ({}, {})", p.x(), p.y()),
       Shape::Circle(c) => write!(
         f,
         "Circle (r: {}, center: {}, {})",
-        c.r, c.center.x, c.center.y
+        c.r,
+        c.center.x(),
+        c.center.y()
       ),
       Shape::Rect(r) => write!(
         f,
@@ -88,36 +91,36 @@ impl fmt::Display for Shape {
 }
 
 pub struct ProjectionResult {
-  pub step: V2,
+  pub step: Vec2,
   pub step_mag: f32,
-  pub collision_normal: V2,
+  pub collision_normal: Vec2,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 impl Rect {
   pub fn left_edge(self) -> LineSegment {
-    let a: V2 = v2(self.min_x, self.min_y);
-    let b: V2 = v2(self.min_x, self.max_y);
-    return LineSegment::new(a, b, V2::LEFT);
+    let a: Vec2 = vec2(self.min_x, self.min_y);
+    let b: Vec2 = vec2(self.min_x, self.max_y);
+    return LineSegment::new(a, b, -Vec2::unit_x());
   }
 
   pub fn bottom_edge(self) -> LineSegment {
-    let a: V2 = v2(self.min_x, self.min_y);
-    let b: V2 = v2(self.max_x, self.min_y);
-    return LineSegment::new(a, b, V2::DOWN);
+    let a: Vec2 = vec2(self.min_x, self.min_y);
+    let b: Vec2 = vec2(self.max_x, self.min_y);
+    return LineSegment::new(a, b, -Vec2::unit_y());
   }
 
   pub fn top_edge(self) -> LineSegment {
-    let a: V2 = v2(self.min_x, self.max_y);
-    let b: V2 = v2(self.max_x, self.max_y);
-    return LineSegment::new(a, b, V2::UP);
+    let a: Vec2 = vec2(self.min_x, self.max_y);
+    let b: Vec2 = vec2(self.max_x, self.max_y);
+    return LineSegment::new(a, b, Vec2::unit_y());
   }
 
   pub fn right_edge(self: Rect) -> LineSegment {
-    let a: V2 = v2(self.max_x, self.max_y);
-    let b: V2 = v2(self.max_x, self.min_y);
-    return LineSegment::new(a, b, V2::RIGHT);
+    let a: Vec2 = vec2(self.max_x, self.max_y);
+    let b: Vec2 = vec2(self.max_x, self.min_y);
+    return LineSegment::new(a, b, Vec2::unit_x());
   }
 
   pub fn w(self) -> f32 {
@@ -127,23 +130,44 @@ impl Rect {
     self.max_y - self.min_y
   }
 }
+
 ///////////////////////////////////////////////////////////////////////////////
 
-// TODO handle with Option<V2> ?
-pub fn get_line_intersection(p0: V2, p1: V2, p2: V2, p3: V2, i: &mut V2) -> bool {
+fn left() -> Vec2 {
+  -Vec2::unit_x()
+}
+
+fn right() -> Vec2 {
+  Vec2::unit_x()
+}
+
+fn down() -> Vec2 {
+  -Vec2::unit_y()
+}
+
+fn up() -> Vec2 {
+  Vec2::unit_y()
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+// TODO handle with Option<Vec2> ?
+pub fn get_line_intersection(p0: Vec2, p1: Vec2, p2: Vec2, p3: Vec2, i: &mut Vec2) -> bool {
   // shamelessly borrowed from https://stackoverflow.com/a/1968345
 
-  let s1: V2 = p1 - p0;
-  let s2: V2 = p3 - p2;
+  let s1: Vec2 = p1 - p0;
+  let s2: Vec2 = p3 - p2;
 
-  let s = (-s1.y * (p0.x - p2.x) + s1.x * (p0.y - p2.y)) / (-s2.x * s1.y + s1.x * s2.y);
-  let t = (s2.x * (p0.y - p2.y) - s2.y * (p0.x - p2.x)) / (-s2.x * s1.y + s1.x * s2.y);
+  let s = (-s1.y() * (p0.x() - p2.x()) + s1.x() * (p0.y() - p2.y()))
+    / (-s2.x() * s1.y() + s1.x() * s2.y());
+  let t = (s2.x() * (p0.y() - p2.y()) - s2.y() * (p0.x() - p2.x()))
+    / (-s2.x() * s1.y() + s1.x() * s2.y());
 
   if s >= 0.0 && s <= 1.0 && t >= 0.0 && t <= 1.0 {
     // TODO rewrite this to be more idiomatic in Rust
     // Collision detected
-    i.x = p0.x + (t * s1.x);
-    i.y = p0.y + (t * s1.y);
+    i.set_x(p0.x() + (t * s1.x()));
+    i.set_y(p0.y() + (t * s1.y()));
     return true;
   } else {
     // No collision
@@ -157,15 +181,15 @@ pub fn project_circle_v_segment(result: &mut ProjectionResult, c: Circle, edge: 
   // use the edge's normal to find the nearest point on the circle, this
   // is the earliest possible point of intersection, and therefore the
   // only one we care about.
-  let circ_edge_a: V2 = c.center - (edge.normal * c.r);
-  let circ_edge_b: V2 = circ_edge_a + result.step;
+  let circ_edge_a: Vec2 = c.center - (edge.normal * c.r);
+  let circ_edge_b: Vec2 = circ_edge_a + result.step;
 
-  let mut intersection: V2 = V2::ZERO;
+  let mut intersection: Vec2 = Vec2::zero();
   let intersection_exists =
     get_line_intersection(edge.a, edge.b, circ_edge_a, circ_edge_b, &mut intersection);
   if intersection_exists {
-    let hit_dist: V2 = intersection - circ_edge_a;
-    let hit_magnitude = hit_dist.mag();
+    let hit_dist: Vec2 = intersection - circ_edge_a;
+    let hit_magnitude = hit_dist.length();
     if hit_magnitude < result.step_mag {
       result.step_mag = hit_magnitude;
       result.step = (result.step.normalize()) * hit_magnitude;
@@ -195,18 +219,18 @@ pub fn get_interval_overlap(a: Interval, b: Interval) -> f32 {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-pub fn test_point_v_circle(p: V2, c: Circle) -> bool {
-  let delta_v: V2 = p - c.center;
-  let x_sq = delta_v.x * delta_v.x;
-  let y_sq = delta_v.y * delta_v.y;
+pub fn test_point_v_circle(p: Vec2, c: Circle) -> bool {
+  let delta_v: Vec2 = p - c.center;
+  let x_sq = delta_v.x() * delta_v.x();
+  let y_sq = delta_v.y() * delta_v.y();
   let r_sq = c.r * c.r;
   return (x_sq + y_sq) < r_sq;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-pub fn test_point_v_aabb(p: V2, aabb: Rect) -> bool {
-  return p.x > aabb.min_x && p.x < aabb.max_x && p.y > aabb.min_y && p.y < aabb.max_y;
+pub fn test_point_v_aabb(p: Vec2, aabb: Rect) -> bool {
+  return p.x() > aabb.min_x && p.x() < aabb.max_x && p.y() > aabb.min_y && p.y() < aabb.max_y;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -241,7 +265,7 @@ pub fn test_overlap(a: Shape, b: Shape) -> bool {
   // }
 
   match (a, b) {
-    (Shape::Point(a), Shape::Point(b)) => V2::nearly(a, b),
+    (Shape::Point(a), Shape::Point(b)) => vec2_nearly(a, b),
     (Shape::Point(a), Shape::Circle(b)) | (Shape::Circle(b), Shape::Point(a)) => {
       test_point_v_circle(a, b)
     }
@@ -258,19 +282,19 @@ pub fn test_overlap(a: Shape, b: Shape) -> bool {
     }
 
     (Shape::Circle(a), Shape::Rect(b)) | (Shape::Rect(b), Shape::Circle(a)) => {
-      let corner: V2 = v2(b.min_x, b.min_y);
+      let corner = vec2(b.min_x, b.min_y);
       if test_point_v_circle(corner, a) {
         return true;
       }
-      let corner = v2(b.min_x, b.max_y);
+      let corner = vec2(b.min_x, b.max_y);
       if test_point_v_circle(corner, a) {
         return true;
       }
-      let corner = v2(b.max_x, b.max_y);
+      let corner = vec2(b.max_x, b.max_y);
       if test_point_v_circle(corner, a) {
         return true;
       }
-      let corner = v2(b.max_x, b.min_y);
+      let corner = vec2(b.max_x, b.min_y);
       if test_point_v_circle(corner, a) {
         return true;
       }
@@ -301,28 +325,28 @@ pub fn test_overlap(a: Shape, b: Shape) -> bool {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-pub fn get_overlap_point_v_aabb(p: V2, aabb: Rect) -> OverlapResult {
+pub fn get_overlap_point_v_aabb(p: Vec2, aabb: Rect) -> OverlapResult {
   // start with the left edge
-  let mut min_axis: V2 = V2::LEFT;
-  let mut min_mag = p.x - aabb.min_x;
+  let mut min_axis: Vec2 = left();
+  let mut min_mag = p.x() - aabb.min_x;
   {
-    let r_mag = aabb.max_x - p.x;
+    let r_mag = aabb.max_x - p.x();
     if r_mag < min_mag {
-      min_axis = V2::RIGHT;
+      min_axis = right();
       min_mag = r_mag;
     }
   }
   {
-    let u_mag = aabb.max_y - p.y;
+    let u_mag = aabb.max_y - p.y();
     if u_mag < min_mag {
-      min_axis = V2::UP;
+      min_axis = up();
       min_mag = u_mag;
     }
   }
   {
-    let d_mag = p.y - aabb.min_y;
+    let d_mag = p.y() - aabb.min_y;
     if d_mag < min_mag {
-      min_axis = V2::DOWN;
+      min_axis = down();
       min_mag = d_mag;
     }
   }
@@ -334,10 +358,10 @@ pub fn get_overlap_point_v_aabb(p: V2, aabb: Rect) -> OverlapResult {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-pub fn get_overlap_point_v_circle(p: V2, c: Circle) -> OverlapResult {
-  let dist: V2 = p - c.center;
-  let dist_mag = V2::mag(dist);
-  let normal: V2 = V2::normalize(dist);
+pub fn get_overlap_point_v_circle(p: Vec2, c: Circle) -> OverlapResult {
+  let dist: Vec2 = p - c.center;
+  let dist_mag = dist.length();
+  let normal: Vec2 = Vec2::normalize(dist);
   OverlapResult {
     normal,
     distance: c.r - dist_mag,
@@ -348,7 +372,7 @@ pub fn get_overlap_point_v_circle(p: V2, c: Circle) -> OverlapResult {
 
 pub fn get_overlap(a: Shape, b: Shape) -> OverlapResult {
   let mut result = OverlapResult {
-    normal: V2::ZERO,
+    normal: Vec2::zero(),
     distance: f32::MAX,
   };
 
@@ -364,7 +388,7 @@ pub fn get_overlap(a: Shape, b: Shape) -> OverlapResult {
     (Shape::Point(a), Shape::Circle(b)) => get_overlap_point_v_circle(a, b),
 
     (Shape::Circle(a), Shape::Circle(b)) => {
-      let p: V2 = a.center;
+      let p: Vec2 = a.center;
       let c: Circle = Circle {
         center: b.center,
         r: a.r + b.r,
@@ -372,35 +396,32 @@ pub fn get_overlap(a: Shape, b: Shape) -> OverlapResult {
       return get_overlap_point_v_circle(p, c);
     }
     (Shape::Circle(a), Shape::Rect(b)) => {
-      if a.center.x > b.max_x && a.center.y > b.max_y {
-        let corner: V2 = v2(b.max_x, b.max_y);
+      if a.center.x() > b.max_x && a.center.y() > b.max_y {
+        let corner: Vec2 = vec2(b.max_x, b.max_y);
         let corner_c = Circle {
           center: corner,
           r: a.r,
         };
         return get_overlap_point_v_circle(a.center, corner_c);
       }
-      if a.center.x < b.min_x && a.center.y > b.max_y {
-        let corner: V2 = V2 {
-          x: b.min_x,
-          y: b.max_y,
-        };
+      if a.center.x() < b.min_x && a.center.y() > b.max_y {
+        let corner = vec2(b.min_x, b.max_y);
         let corner_c = Circle {
           center: corner,
           r: a.r,
         };
         return get_overlap_point_v_circle(a.center, corner_c);
       }
-      if a.center.x > b.max_x && a.center.y < b.min_y {
-        let corner: V2 = v2(b.max_x, b.min_y);
+      if a.center.x() > b.max_x && a.center.y() < b.min_y {
+        let corner: Vec2 = vec2(b.max_x, b.min_y);
         let corner_c: Circle = Circle {
           center: corner,
           r: a.r,
         };
         return get_overlap_point_v_circle(a.center, corner_c);
       }
-      if a.center.x < b.min_x && a.center.y < b.min_y {
-        let corner: V2 = v2(b.min_x, b.min_y);
+      if a.center.x() < b.min_x && a.center.y() < b.min_y {
+        let corner: Vec2 = vec2(b.min_x, b.min_y);
         let corner_c: Circle = Circle {
           center: corner,
           r: a.r,
@@ -418,33 +439,33 @@ pub fn get_overlap(a: Shape, b: Shape) -> OverlapResult {
 
     (Shape::Rect(a), Shape::Rect(b)) => {
       let mut min_distance = f32::MAX;
-      let mut min_normal: V2 = V2::ZERO;
+      let mut min_normal: Vec2 = Vec2::zero();
       {
         let distance = a.max_x - b.min_x;
         if distance < min_distance {
           min_distance = distance;
-          min_normal = V2::LEFT;
+          min_normal = left();
         }
       }
       {
         let distance = b.max_x - a.min_x;
         if distance < min_distance {
           min_distance = distance;
-          min_normal = V2::RIGHT;
+          min_normal = right();
         }
       }
       {
         let distance = a.max_y - b.min_y;
         if distance < min_distance {
           min_distance = distance;
-          min_normal = V2::DOWN;
+          min_normal = down();
         }
       }
       {
         let distance = b.max_y - a.min_y;
         if distance < min_distance {
           min_distance = distance;
-          min_normal = V2::UP;
+          min_normal = up();
         }
       }
       result.distance = min_distance;
@@ -467,21 +488,21 @@ pub fn get_overlap(a: Shape, b: Shape) -> OverlapResult {
 //
 //   thanks, Wikipedia.
 
-pub fn sweep_point_v_edge(result: &mut SweepResult, step: V2, p: V2, edge: LineSegment) {
+pub fn sweep_point_v_edge(result: &mut SweepResult, step: Vec2, p: Vec2, edge: LineSegment) {
   // TODO when doing several of these in series for the same p and step,
   // this calc can be redundant. Perhaps I could prime it as an extra param.
-  let p_stepped: V2 = add2(p, step);
+  let p_stepped: Vec2 = (p + step);
 
   // TODO points in right order?
-  let x1 = p.x;
-  let y1 = p.y;
-  let x2 = p_stepped.x;
-  let y2 = p_stepped.y;
+  let x1 = p.x();
+  let y1 = p.y();
+  let x2 = p_stepped.x();
+  let y2 = p_stepped.y();
 
-  let x3 = edge.a.x;
-  let y3 = edge.a.y;
-  let x4 = edge.b.x;
-  let y4 = edge.b.y;
+  let x3 = edge.a.x();
+  let y3 = edge.a.y();
+  let x4 = edge.b.x();
+  let y4 = edge.b.y();
 
   // this gets the "time" of intersection along one line with the other
   // t < 0 means the intersection is before the first point and
@@ -521,15 +542,15 @@ pub fn sweep_point_v_edge(result: &mut SweepResult, step: V2, p: V2, edge: LineS
 // ----------------------------------------------------------------------------
 // sweep point v. aabb
 
-pub fn sweep_point_v_aabb(result: &mut SweepResult, step: V2, p: V2, aabb: Rect) {
-  if step.x > 0.0 {
+pub fn sweep_point_v_aabb(result: &mut SweepResult, step: Vec2, p: Vec2, aabb: Rect) {
+  if step.x() > 0.0 {
     let edge = aabb.left_edge();
     sweep_point_v_edge(result, step, p, edge);
   } else {
     let edge = aabb.right_edge();
     sweep_point_v_edge(result, step, p, edge);
   }
-  if step.y > 0.0 {
+  if step.y() > 0.0 {
     let edge = aabb.bottom_edge();
     sweep_point_v_edge(result, step, p, edge);
   } else {
@@ -540,20 +561,20 @@ pub fn sweep_point_v_aabb(result: &mut SweepResult, step: V2, p: V2, aabb: Rect)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-pub fn sweep_point_v_circle(result: &mut SweepResult, step: V2, p: V2, circle: Circle) {
+pub fn sweep_point_v_circle(result: &mut SweepResult, step: Vec2, p: Vec2, circle: Circle) {
   // shamelessly borrowed from https://stackoverflow.com/a/1084899
-  let e: V2 = p; // E is the starting point of the ray,
-  let l: V2 = p + step; // L is the end point of the ray,
+  let e: Vec2 = p; // E is the starting point of the ray,
+  let l: Vec2 = p + step; // L is the end point of the ray,
 
-  let c: V2 = circle.center; // C is the center of sphere you're testing against
+  let c: Vec2 = circle.center; // C is the center of sphere you're testing against
   let r = circle.r;
 
-  let d: V2 = l - e; // d = L - E (Direction vector of ray, from start to end)
-  let f: V2 = e - c; // f = E - C (Vector from center sphere to ray start)
+  let d: Vec2 = l - e; // d = L - E (Direction vector of ray, from start to end)
+  let f: Vec2 = e - c; // f = E - C (Vector from center sphere to ray start)
 
-  let a = V2::dot(d, d);
-  let b = 2.0 * V2::dot(f, d);
-  let c = V2::dot(f, f) - r * r;
+  let a = Vec2::dot(d, d);
+  let b = 2.0 * Vec2::dot(f, d);
+  let c = Vec2::dot(f, f) - r * r;
 
   let discriminant = b * b - 4.0 * a * c;
   if discriminant < NEAR_ZERO {
@@ -599,8 +620,8 @@ pub fn sweep_point_v_circle(result: &mut SweepResult, step: V2, p: V2, circle: C
   // back out of collision along its vector of motion (result.step). Along
   // the ray, t1 is always the "first" hit (which may mean moving backward)
   result.t = t;
-  let collision_pos: V2 = add2(p, mul2(step, t));
-  result.normal = V2::normalize(sub2(collision_pos, circle.center));
+  let collision_pos: Vec2 = (p + (step * t));
+  result.normal = Vec2::normalize((collision_pos - circle.center));
   return;
 }
 
@@ -612,10 +633,10 @@ pub fn sweep_point_v_circle(result: &mut SweepResult, step: V2, p: V2, circle: C
 //  be 1.0 if no collision is found along the step, and will be a value
 //  between 0 and 1 when a collision is found, indicating the per
 
-pub fn sweep(step: V2, a: Shape, b: Shape) -> SweepResult {
+pub fn sweep(step: Vec2, a: Shape, b: Shape) -> SweepResult {
   let mut result = SweepResult {
     t: 1.0,
-    normal: V2::ZERO,
+    normal: Vec2::zero(),
   };
 
   match (a, b) {
@@ -633,7 +654,7 @@ pub fn sweep(step: V2, a: Shape, b: Shape) -> SweepResult {
     }
 
     (Shape::Circle(a), Shape::Circle(b)) => {
-      let p: V2 = a.center;
+      let p: Vec2 = a.center;
       let c: Circle = Circle {
         center: b.center,
         r: a.r + b.r,
@@ -643,14 +664,14 @@ pub fn sweep(step: V2, a: Shape, b: Shape) -> SweepResult {
     }
     (Shape::Circle(a), Shape::Rect(b)) => {
       // TODO I might be able to exclude the "back" corner
-      let corners: [V2; 4] = [
-        v2(b.max_x, b.max_y),
-        v2(b.min_x, b.max_y),
-        v2(b.max_x, b.min_y),
-        v2(b.min_x, b.min_y),
+      let corners: [Vec2; 4] = [
+        vec2(b.max_x, b.max_y),
+        vec2(b.min_x, b.max_y),
+        vec2(b.max_x, b.min_y),
+        vec2(b.min_x, b.min_y),
       ];
       for i in 0..4 {
-        let corner: V2 = corners[i];
+        let corner: Vec2 = corners[i];
         let corner_c: Circle = Circle {
           center: corner,
           r: a.r,
@@ -690,25 +711,25 @@ pub fn sweep(step: V2, a: Shape, b: Shape) -> SweepResult {
         // create a bounding box around the swept volume to do
         // a broad phase check first
         let broad_a = Rect {
-          min_x: if step.x > 0.0 {
+          min_x: if step.x() > 0.0 {
             a.min_x
           } else {
-            a.min_x + step.x
+            a.min_x + step.x()
           },
-          max_x: if step.x < 0.0 {
+          max_x: if step.x() < 0.0 {
             a.max_x
           } else {
-            a.max_x + step.x
+            a.max_x + step.x()
           },
-          min_y: if step.y > 0.0 {
+          min_y: if step.y() > 0.0 {
             a.min_y
           } else {
-            a.min_y + step.y
+            a.min_y + step.y()
           },
-          max_y: if step.y < 0.0 {
+          max_y: if step.y() < 0.0 {
             a.max_y
           } else {
-            a.max_y + step.y
+            a.max_y + step.y()
           },
         };
         if !test_aabb_v_aabb(broad_a, b) {
@@ -723,7 +744,7 @@ pub fn sweep(step: V2, a: Shape, b: Shape) -> SweepResult {
 
       // find the distance between the objects on the near and far sides for
       // both x and y
-      if step.x > 0.0 {
+      if step.x() > 0.0 {
         x_inv_entry = b.min_x - (a.max_x);
         x_inv_exit = (b.max_x) - a.min_x;
       } else {
@@ -731,7 +752,7 @@ pub fn sweep(step: V2, a: Shape, b: Shape) -> SweepResult {
         x_inv_exit = b.min_x - (a.max_x);
       }
 
-      if step.y > 0.0 {
+      if step.y() > 0.0 {
         y_inv_entry = b.min_y - (a.max_y);
         y_inv_exit = (b.max_y) - a.min_y;
       } else {
@@ -746,20 +767,20 @@ pub fn sweep(step: V2, a: Shape, b: Shape) -> SweepResult {
       let x_exit: f32;
       let y_exit: f32;
 
-      if step.x == 0.0 {
+      if step.x() == 0.0 {
         x_entry = f32::MIN;
         x_exit = f32::MAX;
       } else {
-        x_entry = x_inv_entry / step.x;
-        x_exit = x_inv_exit / step.x;
+        x_entry = x_inv_entry / step.x();
+        x_exit = x_inv_exit / step.x();
       }
 
-      if step.y == 0.0 {
+      if step.y() == 0.0 {
         y_entry = f32::MIN;
         y_exit = f32::MAX;
       } else {
-        y_entry = y_inv_entry / step.y;
-        y_exit = y_inv_exit / step.y;
+        y_entry = y_inv_entry / step.y();
+        y_exit = y_inv_exit / step.y();
       }
 
       // find the earliest/latest times of collision
@@ -783,19 +804,15 @@ pub fn sweep(step: V2, a: Shape, b: Shape) -> SweepResult {
       // calculate normal of collided surface
       if x_entry > y_entry {
         if x_inv_entry < 0.0 {
-          result.normal.x = 1.0;
-          result.normal.y = 0.0;
+          result.normal = vec2(1.0, 0.0);
         } else {
-          result.normal.x = -1.0;
-          result.normal.y = 0.0;
+          result.normal = vec2(-1.0, 0.0);
         }
       } else {
         if y_inv_entry < 0.0 {
-          result.normal.x = 0.0;
-          result.normal.y = 1.0;
+          result.normal = vec2(0.0, 1.0);
         } else {
-          result.normal.x = 0.0;
-          result.normal.y = -1.0;
+          result.normal = vec2(0.0, -1.0);
         }
       }
 
@@ -813,13 +830,13 @@ pub fn sweep(step: V2, a: Shape, b: Shape) -> SweepResult {
   }
 }
 
-pub fn rand_in_shape(shape: Shape) -> V2 {
+pub fn rand_in_shape(shape: Shape) -> Vec2 {
   match shape {
     Shape::Point(p) => p,
     Shape::Rect(r) => {
       let x = lerpf(r.min_x, r.max_x, rand::random());
       let y = lerpf(r.min_y, r.max_y, rand::random());
-      return v2(x, y);
+      return vec2(x, y);
     }
     Shape::Circle(c) => {
       let random_arc: f32 = rand::random();
@@ -829,7 +846,7 @@ pub fn rand_in_shape(shape: Shape) -> V2 {
       // If you need it in Cartesian coordinates
       let x = r * f32::cos(a);
       let y = r * f32::sin(a);
-      return c.center + v2(x, y);
+      return c.center + vec2(x, y);
     }
   }
 }

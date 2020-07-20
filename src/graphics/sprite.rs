@@ -1,13 +1,14 @@
 use crate::geometry::Rect;
 use crate::graphics::quad::draw_quad;
 use crate::*;
+use glam::*;
 
 /// This draw command is a special alias for `draw_quad` with some extra
 /// utility for treating the associated image like a spritesheet. Define
 /// a `Sprite` to describe the zone within the image that will be drawn.
 ///
 /// Use `draw_image` instead if you just want to draw the whole image.
-pub fn draw_sprite(ctx: &mut Ctx, sprite: Sprite, pos: V2, scale: f32) {
+pub fn draw_sprite(ctx: &mut Ctx, sprite: Sprite, pos: Vec2, scale: f32) {
     let corners = sprite.corners;
     let img_id = sprite.img_id;
     let transform = sprite_transform(pos, scale);
@@ -23,20 +24,8 @@ pub fn draw_sprite(ctx: &mut Ctx, sprite: Sprite, pos: V2, scale: f32) {
 
 /// Creates a transformation matrix based on a 2D position and scaling factor
 /// for use in creating quad draw calls that display images
-fn sprite_transform(pos: V2, scale: f32) -> M4 {
-    let mut transform = M4::IDENTITY;
-
-    // translation
-    transform.e[3][0] = pos.x;
-    transform.e[3][1] = pos.y;
-    // transform.e[3][2] = pos.z; // no z for sprites; they're 2D
-
-    // scale
-    transform.e[0][0] = scale;
-    transform.e[1][1] = scale;
-    transform.e[2][2] = scale;
-
-    transform
+fn sprite_transform(pos: Vec2, scale: f32) -> Mat4 {
+    Mat4::from_scale_rotation_translation(Vec3::splat(scale), Quat::identity(), pos.extend(0.0))
 }
 
 /// Draws a full image on screen at the specified position and scale using a quad.
@@ -50,7 +39,7 @@ fn sprite_transform(pos: V2, scale: f32) -> M4 {
 /// Maybe split out 2D drawing into a separate module.
 ///
 /// TODO more options for pivots... center, for instance
-pub fn draw_image(ctx: &mut Ctx, img_id: usize, pos: V2, scale: f32, pivot: Pivot) {
+pub fn draw_image(ctx: &mut Ctx, img_id: usize, pos: Vec2, scale: f32, pivot: Pivot) {
     let w = ctx.gl.images.e[img_id].w as f32;
     let h = ctx.gl.images.e[img_id].h as f32;
     let uv = Rect {

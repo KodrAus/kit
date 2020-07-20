@@ -3,14 +3,14 @@ use crate::math::*;
 use crate::*;
 use std::mem::size_of;
 
-pub fn draw_point(ctx: &mut Ctx, pos: V2, color: V4) {
+pub fn draw_point(ctx: &mut Ctx, pos: Vec2, color: Vec4) {
     let i = ctx.gl.points.count;
     // TODO debug only?
     if i >= MAX_POINTS {
         panic!("can't draw that many points!")
     }
     ctx.gl.points.count += 1;
-    ctx.gl.points.e[i] = DrawPoint::new(pos.x, pos.y, 0.0, color);
+    ctx.gl.points.e[i] = DrawPoint::new(pos.x(), pos.y(), 0.0, color);
 }
 
 pub fn init(ctx: &mut Ctx) {
@@ -88,7 +88,7 @@ pub fn present(ctx: &mut Ctx) {
         SgShaderStage::Vertex,
         0,
         &ctx.gl.view_proj,
-        size_of::<M4>() as i32,
+        size_of::<Mat4>() as i32,
     );
     sg_draw(0, ctx.gl.points.count as i32, 1);
 }

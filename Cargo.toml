@@ -12,9 +12,10 @@ license = "MIT"
 name = "kit"
 readme = "README.md"
 repository = "https://github.com/weshardee/kit"
-version = "0.0.3"
+version = "0.1.0"
 
 [dependencies]
+glam = "*"
 image = "0.23"
 rand = "0.7"
 sokol = "0.3"
