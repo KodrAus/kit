@@ -1,15 +1,8 @@
 #![allow(dead_code)]
 
-use core::ops::IndexMut;
-use glam::*;
+pub use glam::*;
 pub use std::f32::consts::PI;
 pub use std::f32::consts::SQRT_2;
-use std::fmt;
-use std::ops::Add;
-use std::ops::Div;
-use std::ops::Index;
-use std::ops::Mul;
-use std::ops::Sub;
 
 // TODO TAU is in std in nightly - use std?
 pub const TAU: f32 = 6.28318530717958647692528676655900577f32; // 6.2831853071795862f64

@@ -11,7 +11,6 @@ use crate::geometry::*;
 use crate::math::*;
 use crate::*;
 use core::mem::size_of;
-use glam::*;
 use image;
 use image::*;
 use std::path::Path;
@@ -57,7 +56,7 @@ pub use sprite::*;
 /// general draw call for drawing a shape primitive
 pub fn draw_shape(ctx: &mut Ctx, shape: Shape, color: Vec4) {
     match shape {
-        Shape::Point(p) => draw_point(ctx, p, color),
+        Shape::Point(p) => draw_point(ctx, p.extend(0.0), color),
         Shape::Rect(r) => draw_rect(ctx, r, color),
         Shape::Circle(c) => draw_circ(ctx, c, color),
     }

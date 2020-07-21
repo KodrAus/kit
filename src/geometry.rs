@@ -3,7 +3,6 @@
 //! TODO move hittesting to a separate crate?
 
 use crate::math::*;
-use glam::*;
 use rand;
 use std::fmt;
 
@@ -102,25 +101,25 @@ impl Rect {
   pub fn left_edge(self) -> LineSegment {
     let a: Vec2 = vec2(self.min_x, self.min_y);
     let b: Vec2 = vec2(self.min_x, self.max_y);
-    return LineSegment::new(a, b, -Vec2::unit_x());
+    return LineSegment::new(a, b, left());
   }
 
   pub fn bottom_edge(self) -> LineSegment {
     let a: Vec2 = vec2(self.min_x, self.min_y);
     let b: Vec2 = vec2(self.max_x, self.min_y);
-    return LineSegment::new(a, b, -Vec2::unit_y());
+    return LineSegment::new(a, b, down());
   }
 
   pub fn top_edge(self) -> LineSegment {
     let a: Vec2 = vec2(self.min_x, self.max_y);
     let b: Vec2 = vec2(self.max_x, self.max_y);
-    return LineSegment::new(a, b, Vec2::unit_y());
+    return LineSegment::new(a, b, up());
   }
 
   pub fn right_edge(self: Rect) -> LineSegment {
     let a: Vec2 = vec2(self.max_x, self.max_y);
     let b: Vec2 = vec2(self.max_x, self.min_y);
-    return LineSegment::new(a, b, Vec2::unit_x());
+    return LineSegment::new(a, b, right());
   }
 
   pub fn w(self) -> f32 {
@@ -134,7 +133,7 @@ impl Rect {
 ///////////////////////////////////////////////////////////////////////////////
 
 fn left() -> Vec2 {
-  -Vec2::unit_x()
+  vec2(-1.0, 0.0)
 }
 
 fn right() -> Vec2 {
@@ -142,7 +141,7 @@ fn right() -> Vec2 {
 }
 
 fn down() -> Vec2 {
-  -Vec2::unit_y()
+  vec2(0.0, -1.0)
 }
 
 fn up() -> Vec2 {

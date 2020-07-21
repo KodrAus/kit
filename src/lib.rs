@@ -11,7 +11,6 @@ mod math;
 
 // re-exporting for convenient importing by consumers
 pub use geometry::*;
-pub use glam::*;
 pub use graphics::*;
 pub use math::*;
 
@@ -22,8 +21,10 @@ pub use sokol::app::SAppKeycode as Keycode;
 use sokol::app::*;
 use sokol::gfx::*;
 
+use std::mem;
+
 // ----------------------------------------------------------------------------
-// handy constants
+// colors
 
 pub fn red() -> Vec4 {
   vec4(1.0, 0.0, 0.0, 1.0)
@@ -94,24 +95,26 @@ pub enum Pivot {
 }
 
 #[derive(Default, Copy, Clone)]
+#[repr(align(16))]
 pub(crate) struct DrawPoint {
-  pub pos: Vec3,
-  pub color: Vec4,
+  pos: Vec4, // TODO maybe Vec3A?
+  color: Vec4,
 }
 
 impl DrawPoint {
   pub fn new(x: f32, y: f32, z: f32, color: Vec4) -> DrawPoint {
-    let pos = vec3(x, y, z);
+    let pos = vec4(x, y, z, 1.0);
     DrawPoint { pos, color }
   }
 }
 
 #[derive(Default, Copy, Clone)]
+#[repr(align(16))]
 pub(crate) struct DrawLine {
-  pub point_a: Vec3,
+  pub point_a: Vec4, // TODO maybe Vec3A?
   pub color_a: Vec4,
-  pub point_b: Vec3,
-  pub color_b: Vec4, // TODO do I *really* need gradient lines?
+  pub point_b: Vec4, // TODO maybe Vec3A?
+  pub color_b: Vec4,
 }
 
 #[derive(Default, Copy, Clone)]
@@ -256,6 +259,87 @@ pub struct GraphicsCtx {
   pub(crate) pass_action: SgPassAction,
 }
 
+/// describes the most recent mouse button state
+#[derive(Default)]
+pub struct ButtonState {
+  /// the number of presses during the previous frame
+  pub prev_down: u32,
+  /// the number of releases during the previous frame
+  pub prev_up: u32,
+  /// the number of presses during the current frame
+  pub down: u32,
+  /// the number of releases during the current frame
+  pub up: u32,
+}
+
+impl ButtonState {
+  pub(crate) fn frame_end(&mut self) {
+    self.prev_down = self.down;
+    self.prev_up = self.up;
+    self.down = 0;
+    self.up = 0;
+  }
+}
+
+/// read from this struct to access information about mouse input state
+#[derive(Default)]
+pub struct MouseCtx {
+  pub left: ButtonState,
+  pub middle: ButtonState,
+  pub right: ButtonState,
+
+  // TODO should there be a way to get mouse position in world coordinates? ie. reverse view & projeection?
+  pub pos: Vec2,
+  pub prev_pos: Vec2,
+
+  /// contains the amount of mouse wheel movement since the previous frame
+  pub scroll_x: f32,
+  pub scroll_y: f32,
+}
+
+impl MouseCtx {
+  pub(crate) fn frame_end(&mut self) {
+    if (self.left.down > 0) {
+      println!("engine mouse down {}", self.left.down);
+    }
+    self.scroll_x = 0.0;
+    self.scroll_y = 0.0;
+    self.prev_pos = self.pos;
+    self.left.frame_end();
+    self.middle.frame_end();
+    self.right.frame_end();
+  }
+}
+
+/// Holds input state. Read from this during a game update to consume player inputs.
+#[derive(Default)]
+pub struct InputCtx {
+  pub mouse: MouseCtx,
+
+  // TODO add multiple controllers
+  pub l_stick: Vec2,
+  pub r_stick: Vec2,
+
+  // TODO should this be pub? Maybe hide it as an implementation detail
+  pub quit: bool,
+  // TODO replace these with actual keyboard state - what to do with the keys should be
+  // a detail the game provides.
+  pub dir_u: bool,
+  pub dir_d: bool,
+  pub dir_l: bool,
+  pub dir_r: bool,
+  pub action_pressed: bool,
+  pub action_released: bool,
+  // TODO touch input
+}
+
+/// describes a type of input the player may be using
+pub enum InputType {
+  MouseKeyboard,
+  Gamepad, // TODO which kind? may be relevant for icons
+  Touch,
+}
+
 // TODO should arrays in here be Vec<T> instead? Heap instead of stack?
 
 /// Engine state. Most engine apis operate by taking this state as the first
@@ -264,7 +348,7 @@ pub struct GraphicsCtx {
 /// for the API your game should implement.
 #[derive(Default)]
 pub struct Ctx {
-  pub input: input::InputCtx,
+  pub input: InputCtx,
   pub gl: GraphicsCtx,
 }
 

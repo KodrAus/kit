@@ -1,7 +1,8 @@
 use crate::geometry::Rect;
 use crate::graphics::quad::draw_quad;
 use crate::*;
-use glam::*;
+use crate::math::Quat;
+use crate::math::Mat4;
 
 /// This draw command is a special alias for `draw_quad` with some extra
 /// utility for treating the associated image like a spritesheet. Define

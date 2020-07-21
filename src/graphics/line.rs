@@ -8,9 +8,9 @@ pub fn draw_line(ctx: &mut Ctx, point_a: Vec3, point_b: Vec3, color: Vec4) {
     let i = ctx.gl.lines.count;
     ctx.gl.lines.count += 1;
     ctx.gl.lines.e[i] = DrawLine {
-        point_a,
+        point_a: point_a.extend(1.0),
         color_a: color,
-        point_b,
+        point_b: point_b.extend(1.0),
         color_b: color,
     };
 }
@@ -44,7 +44,7 @@ pub fn init(ctx: &mut Ctx) {
             attrs: vec![
                 SgVertexAttrDesc {
                     // name : "in_position",
-                    format: SgVertexFormat::Float3,
+                    format: SgVertexFormat::Float4,
                     ..Default::default()
                 },
                 SgVertexAttrDesc {
