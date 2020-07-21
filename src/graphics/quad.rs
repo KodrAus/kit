@@ -104,6 +104,7 @@ pub fn init(ctx: &mut Ctx) {
 
     /* a pipeline state object */
     shape.pipeline = sg_make_pipeline(&SgPipelineDesc {
+        // TODO use triangle strip to reduce the number of indices sent?
         primitive_type: SgPrimitiveType::Triangles,
         shader: shd,
         index_type: SgIndexType::UInt16,
