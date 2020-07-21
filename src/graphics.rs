@@ -98,9 +98,11 @@ pub fn window_to_world_2d(ctx: &Ctx, p: Vec2) -> Vec2 {
 /// configures kit to use the default 2d projection for rendering.
 /// In this projection, 1 world unit is equal to 1 device pixel.
 /// However, we set the world origin to be the center of the screen and y points up.
+///
+/// Should be called every frame if the window size is changeable.
 pub fn default_projection_2d(ctx: &mut Ctx) {
-    let half_w = window_width_half(ctx) as f32 / 2.0;
-    let half_h = window_height(ctx) as f32 / 2.0;
+    let half_w = window_width_half(ctx);
+    let half_h = window_height_half(ctx);
     let camera_pos = vec3(0.0, 0.0, 6.0);
     ctx.gl.proj = Mat4::orthographic_rh_gl(-half_w, half_w, -half_h, half_h, -500.0, 500.0);
     ctx.gl.view = Mat4::look_at_rh(camera_pos, Vec3::zero(), Vec3::unit_y());
