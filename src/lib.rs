@@ -35,6 +35,9 @@ pub fn green() -> Vec4 {
 pub fn blue() -> Vec4 {
   vec4(0.0, 0.0, 1.0, 1.0)
 }
+pub fn white() -> Vec4 {
+  vec4(1.0, 1.0, 1.0, 1.0)
+}
 
 // ----------------------------------------------------------------------------
 // drawing structures and utils
