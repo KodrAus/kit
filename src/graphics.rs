@@ -23,18 +23,9 @@ const BYTES_LINES: usize = size_of::<DrawLine>() * MAX_LINES;
 //     view_proj: Mat4,
 // }
 
-pub fn load_img(ctx: &mut Ctx, filename: &str) -> Texture {
-    // TODO get the true path using the base... is this needed or does the Rust std lib do this for me?
-    let path = Path::new(filename);
-
-    // TODO when I switch to OpenGL, I may just want to use a surface to load pixel data
-    let img = image::open(path).unwrap();
-    gl_register_img(ctx, img)
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// specialized draw calls
-// ----------------------
+// ----------------------------------------------------------------------------
+// draw calls
+//
 // these build on the drawing primitives to draw special game structures like
 // sprite sheets and circles
 
@@ -43,7 +34,6 @@ pub use line::draw_line;
 pub use mesh::draw_mesh;
 pub use point::draw_point;
 pub use rect::draw_rect;
-
 pub use sprite::*;
 
 // TODO reimplement
@@ -62,32 +52,77 @@ pub fn draw_shape(ctx: &mut Ctx, shape: Shape, color: Vec4) {
     }
 }
 
-/// returns the current aspect ratio of the application window
-pub fn aspect(_: &mut Ctx) -> f32 {
-    (sapp_width() as f32) / (sapp_height() as f32)
+// ----------------------------------------------------------------------------
+// GETTERS
+
+/// the current window width
+pub fn window_width(_: &Ctx) -> f32 {
+    (sapp_width() as f32)
 }
 
-/// returns the current window width
-pub fn window_width(_: &Ctx) -> u32 {
-    (sapp_width() as u32)
+/// the current window height
+pub fn window_height(_: &Ctx) -> f32 {
+    (sapp_height() as f32)
 }
 
-pub fn window_height(_: &Ctx) -> u32 {
-    (sapp_height() as u32)
+/// the current aspect ratio of the application window
+pub fn aspect(ctx: &mut Ctx) -> f32 {
+    // TODO memoize in state on window size change
+    window_width(ctx) / window_height(ctx)
 }
 
-pub fn default_projection(ctx: &mut Ctx) {
-    let half_w = window_width(ctx) as f32 / 2.0;
+/// half the current window width in device pixels
+pub fn window_width_half(_: &Ctx) -> f32 {
+    // TODO memoize in state on window size change
+    (sapp_width() as f32) / 2.0
+}
+
+/// half the current window height in device pixels
+pub fn window_height_half(_: &Ctx) -> f32 {
+    // TODO memoize in state on window size change
+    (sapp_height() as f32) / 2.0
+}
+
+/// returns a world position corresponding to the given window position. This is a bit faster
+/// than the corresponding
+pub fn window_to_world_2d(ctx: &Ctx, p: Vec2) -> Vec2 {
+    let window_width = window_width(ctx) as f32;
+    let window_height = window_height(ctx) as f32;
+    let world_pos = vec2(p.x() - window_width / 2.0, window_height / 2.0 - p.y());
+    world_pos
+}
+
+// ----------------------------------------------------------------------------
+// GRAPHICS SETUP
+
+/// configures kit to use the default 2d projection for rendering.
+/// In this projection, 1 world unit is equal to 1 device pixel.
+/// However, we set the world origin to be the center of the screen and y points up.
+pub fn default_projection_2d(ctx: &mut Ctx) {
+    let half_w = window_width_half(ctx) as f32 / 2.0;
     let half_h = window_height(ctx) as f32 / 2.0;
     let camera_pos = vec3(0.0, 0.0, 6.0);
     ctx.gl.proj = Mat4::orthographic_rh_gl(-half_w, half_w, -half_h, half_h, -500.0, 500.0);
     ctx.gl.view = Mat4::look_at_rh(camera_pos, Vec3::zero(), Vec3::unit_y());
 }
 
+// ----------------------------------------------------------------------------
+// IMAGE LOADING
+
 // TODO unload textures?
 
-/// internal function for registering an image as a texture in graphics memory
-fn gl_register_img(ctx: &mut Ctx, img: DynamicImage) -> Texture {
+// ----------------------------------------------------------------------------
+// asset loading
+
+/// Loads an image into memory. Returns info about the image, including width,
+/// height, and an id for setting the image for use in draw calls.
+pub fn load_img(ctx: &mut Ctx, filename: &str) -> Texture {
+    // TODO get the true path using the base... is this needed or does the Rust std lib do this for me?
+    let path = Path::new(filename);
+
+    // TODO when I switch to OpenGL, I may just want to use a surface to load pixel data
+    let img = image::open(path).unwrap();
+
     let id = ctx.gl.images.count;
     ctx.gl.images.count += 1;
 
@@ -115,13 +150,13 @@ fn gl_register_img(ctx: &mut Ctx, img: DynamicImage) -> Texture {
     );
     ctx.gl.images.e[id] = Image { e, w, h };
 
-    return Texture { id, w, h };
+    Texture { id, w, h }
 }
 
 /// Helper for shape construction. Most of our primitives take a standard mvp
 /// matrix as a uniform which is used for camera position, so they usually implement
 /// this standard uniform block in their shaders.
-fn std_uniform_block<'a>() -> SgShaderUniformBlockDesc<'a> {
+pub(crate) fn std_uniform_block<'a>() -> SgShaderUniformBlockDesc<'a> {
     SgShaderUniformBlockDesc {
         size: size_of::<Mat4>() as i32,
         uniforms: vec![SgShaderUniformDesc {
@@ -131,6 +166,9 @@ fn std_uniform_block<'a>() -> SgShaderUniformBlockDesc<'a> {
         }],
     }
 }
+
+// ----------------------------------------------------------------------------
+// LIFECYCLE
 
 /// lifecycle function for initial setup and sensible defaults. Needs to be
 /// run *after* window initialization.
