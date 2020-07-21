@@ -13,6 +13,7 @@ use crate::*;
 use core::mem::size_of;
 use image;
 use image::*;
+use std::f32;
 use std::path::Path;
 
 const BYTES_POINTS: usize = size_of::<DrawPoint>() * MAX_POINTS;
@@ -104,7 +105,7 @@ pub fn default_projection_2d(ctx: &mut Ctx) {
     let half_w = window_width_half(ctx);
     let half_h = window_height_half(ctx);
     let camera_pos = vec3(0.0, 0.0, 6.0);
-    ctx.gl.proj = Mat4::orthographic_rh_gl(-half_w, half_w, -half_h, half_h, -500.0, 500.0);
+    ctx.gl.proj = Mat4::orthographic_rh_gl(-half_w, half_w, -half_h, half_h, f32::MIN, f32::MAX);
     ctx.gl.view = Mat4::look_at_rh(camera_pos, Vec3::zero(), Vec3::unit_y());
 }
 
