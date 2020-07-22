@@ -318,9 +318,6 @@ pub struct MouseCtx {
 
 impl MouseCtx {
   pub(crate) fn frame_end(&mut self) {
-    if (self.left.down > 0) {
-      println!("engine mouse down {}", self.left.down);
-    }
     self.scroll_x = 0.0;
     self.scroll_y = 0.0;
     self.prev_pos = self.pos;
@@ -367,6 +364,7 @@ pub enum InputType {
 /// for the API your game should implement.
 #[derive(Default)]
 pub struct Ctx {
+  pub frame_count: u32,
   pub input: InputCtx,
   pub gl: GraphicsCtx,
 }
@@ -401,6 +399,7 @@ impl<K: KApp> SApp for App<K> {
 
   fn sapp_frame(&mut self) {
     let ctx = &mut self.ctx;
+    ctx.frame_count += 1;
     ctx.gl.view_proj = ctx.gl.proj * ctx.gl.view;
     self.app.frame(ctx);
     graphics::present(ctx);
