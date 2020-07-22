@@ -16,6 +16,6 @@ version = "0.1.0"
 
 [dependencies]
 glam = "0.9"
-image = "0.23"
+image = {version = "0.23", default-features = false, features = ["png"]}
 rand = "0.7"
 sokol = "0.3"
