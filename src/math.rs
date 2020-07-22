@@ -44,6 +44,10 @@ pub fn to_radians(degrees: f32) -> f32 {
   degrees * (PI / 180.0) // TODO store PI / 180 as const?
 }
 
+pub fn clampf(value: f32, min_value: f32, max_value: f32) -> f32 {
+  max(min_value, min(max_value, value))
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // vec 2
 
