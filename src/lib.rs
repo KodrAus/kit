@@ -88,7 +88,7 @@ impl Sprite {
   pub fn flip_x(&self) -> Sprite {
     let mut copy = *self;
     copy.corners[0] = self.corners[3];
-    copy.corners[3] = self.corners[1];
+    copy.corners[3] = self.corners[0];
     copy.corners[1] = self.corners[2];
     copy.corners[2] = self.corners[1];
 
