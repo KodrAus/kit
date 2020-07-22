@@ -84,6 +84,22 @@ pub struct Sprite {
   pub(crate) corners: QuadCorners,
 }
 
+impl Sprite {
+  pub fn flip_x(&self) -> Sprite {
+    let mut copy = *self;
+    copy.corners[0] = self.corners[3];
+    copy.corners[3] = self.corners[1];
+    copy.corners[1] = self.corners[2];
+    copy.corners[2] = self.corners[1];
+
+    copy.corners[0].pos.set_x(-copy.corners[0].pos.x());
+    copy.corners[1].pos.set_x(-copy.corners[1].pos.x());
+    copy.corners[2].pos.set_x(-copy.corners[2].pos.x());
+    copy.corners[3].pos.set_x(-copy.corners[3].pos.x());
+    copy
+  }
+}
+
 /// Primarily used for images, this expresses a point within the
 /// image that will be aligned to the image's position coordinates
 /// and which will be the center of any scaling or rotation applied
