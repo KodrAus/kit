@@ -77,29 +77,29 @@
 // }
 
 pub fn present(ctx: &mut Ctx) {
-    let model_shape_v_buff = ctx.gl.model_shape.bindings.vertex_buffers[0];
-    let model_shape_i_buff = ctx.gl.model_shape.bindings.index_buffer;
+  let model_shape_v_buff = ctx.gl.model_shape.bindings.vertex_buffers[0];
+  let model_shape_i_buff = ctx.gl.model_shape.bindings.index_buffer;
 
-    // TODO we should only need to do this step when loading a model
-    // let buff = ctx.gl.mesh_buffer;
-    // memory_arena_t v = buff.vertex_memory;
-    // memory_arena_t i = buff.index_memory;
-    // sg_update_buffer(model_shape.bindings.vertex_buffers[0], v.base, v.size);
-    // sg_update_buffer(model_shape.bindings.index_buffer, i.base, i.size);
+  // TODO we should only need to do this step when loading a model
+  // let buff = ctx.gl.mesh_buffer;
+  // memory_arena_t v = buff.vertex_memory;
+  // memory_arena_t i = buff.index_memory;
+  // sg_update_buffer(model_shape.bindings.vertex_buffers[0], v.base, v.size);
+  // sg_update_buffer(model_shape.bindings.index_buffer, i.base, i.size);
 
-    // sg_apply_pipeline(model_shape.pipeline);
-    // sg_apply_bindings(&model_shape.bindings);
+  // sg_apply_pipeline(model_shape.pipeline);
+  // sg_apply_bindings(&model_shape.bindings);
 
-    // mesh_vs_params_t mesh_vs_params = {};
-    // mesh_vs_params.view_proj = view_proj;
+  // mesh_vs_params_t mesh_vs_params = {};
+  // mesh_vs_params.view_proj = view_proj;
 
-    // for i in 0..ctx.gl.num_meshes
-    // {
-    //   DrawMesh draw_mesh = ctx.gl.meshes[i];
-    //   u8 mesh_i = draw_mesh.mesh_i;
-    //   mesh_record_t mesh = ctx.gl.mesh_buffer.meshes[mesh_i];
-    //   mesh_vs_params.model = draw_mesh.transform;
-    //   sg_apply_uniforms(SG_SHADERSTAGE_VS, 0, &mesh_vs_params, size_of::<mesh_vs_params_t>());
-    //   sg_draw(mesh.index_offset, mesh.index_count, 1);
-    // }
+  // for i in 0..ctx.gl.num_meshes
+  // {
+  //   DrawMesh draw_mesh = ctx.gl.meshes[i];
+  //   u8 mesh_i = draw_mesh.mesh_i;
+  //   mesh_record_t mesh = ctx.gl.mesh_buffer.meshes[mesh_i];
+  //   mesh_vs_params.model = draw_mesh.transform;
+  //   sg_apply_uniforms(SG_SHADERSTAGE_VS, 0, &mesh_vs_params, size_of::<mesh_vs_params_t>());
+  //   sg_draw(mesh.index_offset, mesh.index_count, 1);
+  // }
 }

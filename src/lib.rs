@@ -21,23 +21,18 @@ pub use sokol::app::SAppKeycode as Keycode;
 use sokol::app::*;
 use sokol::gfx::*;
 
-use std::mem;
+use std::{mem, path::PathBuf};
 
 // ----------------------------------------------------------------------------
 // colors
 
-pub fn red() -> Vec4 {
-  vec4(1.0, 0.0, 0.0, 1.0)
-}
-pub fn green() -> Vec4 {
-  vec4(0.0, 1.0, 0.0, 1.0)
-}
-pub fn blue() -> Vec4 {
-  vec4(0.0, 0.0, 1.0, 1.0)
-}
-pub fn white() -> Vec4 {
-  vec4(1.0, 1.0, 1.0, 1.0)
-}
+pub fn red() -> Vec4 { vec4(1.0, 0.0, 0.0, 1.0) }
+
+pub fn green() -> Vec4 { vec4(0.0, 1.0, 0.0, 1.0) }
+
+pub fn blue() -> Vec4 { vec4(0.0, 0.0, 1.0, 1.0) }
+
+pub fn white() -> Vec4 { vec4(1.0, 1.0, 1.0, 1.0) }
 
 // ----------------------------------------------------------------------------
 // drawing structures and utils
@@ -45,12 +40,17 @@ pub fn white() -> Vec4 {
 // pub(crate) const BYTES_MODEL_BUFF_V (size_of::<MeshVert>() * MAX_MODEL_VERTS)
 // pub(crate) const BYTES_MODEL_BUFF_I (size_of::<u32>() * MAX_MODEL_VERTS)
 pub(crate) const MAX_QUADS: usize = 4000;
+
 pub(crate) const MAX_POINTS: usize = 15000;
+
 pub(crate) const MAX_LINES: usize = 1000;
+
 pub(crate) const MAX_IMAGES: usize = 100;
+
 pub(crate) const MAX_MESHES: usize = 200;
 
 #[derive(Default, Copy, Clone)]
+
 pub struct Texture {
   pub id: usize,
   pub w: u32,
@@ -59,6 +59,7 @@ pub struct Texture {
 
 // TODO move to game layer?
 #[derive(Default, Copy, Clone)]
+
 pub struct TextureFrameDesc {
   pub x: u32,
   pub y: u32,
@@ -79,6 +80,7 @@ pub struct TextureFrameDesc {
 /// texture_id in order to allow the same sprite dimensions to be reused with
 /// different (equally sized) images.
 #[derive(Default, Clone, Copy)]
+
 pub struct Sprite {
   pub(crate) img_id: usize,
   pub(crate) corners: QuadCorners,
@@ -86,16 +88,25 @@ pub struct Sprite {
 
 impl Sprite {
   pub fn flip_x(&self) -> Sprite {
+
     let mut copy = *self;
+
     copy.corners[0] = self.corners[3];
+
     copy.corners[3] = self.corners[0];
+
     copy.corners[1] = self.corners[2];
+
     copy.corners[2] = self.corners[1];
 
     copy.corners[0].pos.set_x(-copy.corners[0].pos.x());
+
     copy.corners[1].pos.set_x(-copy.corners[1].pos.x());
+
     copy.corners[2].pos.set_x(-copy.corners[2].pos.x());
+
     copy.corners[3].pos.set_x(-copy.corners[3].pos.x());
+
     copy
   }
 }
@@ -108,6 +119,7 @@ impl Sprite {
 /// Pivot point coordinates, like Sprites and Quad uvs, are relative
 /// to the lower-left corner of the Sprite in question.
 #[derive(Copy, Clone)]
+
 pub enum Pivot {
   Center,
   Px(f32, f32),
@@ -115,6 +127,7 @@ pub enum Pivot {
 
 #[derive(Default, Copy, Clone)]
 #[repr(align(16))]
+
 pub(crate) struct DrawPoint {
   pos: Vec4, // TODO maybe Vec3A?
   color: Vec4,
@@ -122,13 +135,16 @@ pub(crate) struct DrawPoint {
 
 impl DrawPoint {
   pub fn new(x: f32, y: f32, z: f32, color: Vec4) -> DrawPoint {
+
     let pos = vec4(x, y, z, 1.0);
+
     DrawPoint { pos, color }
   }
 }
 
 #[derive(Default, Copy, Clone)]
 #[repr(align(16))]
+
 pub(crate) struct DrawLine {
   pub point_a: Vec4, // TODO maybe Vec3A?
   pub color_a: Vec4,
@@ -137,6 +153,7 @@ pub(crate) struct DrawLine {
 }
 
 #[derive(Default, Copy, Clone)]
+
 pub(crate) struct QuadVert {
   pub pos: Vec3,
   pub uv: Vec2,
@@ -144,8 +161,11 @@ pub(crate) struct QuadVert {
 
 impl QuadVert {
   pub fn new(x: f32, y: f32, z: f32, uvx: f32, uvy: f32) -> QuadVert {
+
     let pos = vec3(x, y, z);
+
     let uv = vec2(uvx, uvy);
+
     QuadVert { pos, uv }
   }
 }
@@ -153,6 +173,7 @@ impl QuadVert {
 pub(crate) type QuadCorners = [QuadVert; 4];
 
 #[derive(Default, Copy, Clone)]
+
 pub(crate) struct DrawQuad {
   pub img_id: usize,
   pub corners: QuadCorners,
@@ -160,18 +181,21 @@ pub(crate) struct DrawQuad {
 }
 
 #[derive(Default, Clone, Copy)]
+
 pub(crate) struct DrawMesh {
   pub mesh_i: usize,
   pub transform: Mat4,
 }
 
 #[derive(Default)]
+
 pub(crate) struct GlShape {
   pub pipeline: SgPipeline,
   pub bindings: SgBindings,
 }
 
 #[derive(Default, Copy, Clone)]
+
 pub(crate) struct Image {
   pub(crate) e: SgImage,
   pub(crate) w: u32,
@@ -185,6 +209,7 @@ pub(crate) struct ImagesCtx {
 
 impl Default for ImagesCtx {
   fn default() -> Self {
+
     Self {
       e: [Default::default(); MAX_IMAGES],
       count: 0,
@@ -200,6 +225,7 @@ pub(crate) struct QuadsCtx {
 
 impl Default for QuadsCtx {
   fn default() -> Self {
+
     Self {
       shape: Default::default(),
       e: [Default::default(); MAX_QUADS],
@@ -216,6 +242,7 @@ pub(crate) struct PointsCtx {
 
 impl Default for PointsCtx {
   fn default() -> Self {
+
     Self {
       shape: Default::default(),
       e: [Default::default(); MAX_POINTS],
@@ -232,6 +259,7 @@ pub(crate) struct LinesCtx {
 
 impl Default for LinesCtx {
   fn default() -> Self {
+
     Self {
       shape: Default::default(),
       e: [Default::default(); MAX_LINES],
@@ -248,6 +276,7 @@ pub(crate) struct MeshCtx {
 
 impl Default for MeshCtx {
   fn default() -> Self {
+
     Self {
       shape: Default::default(),
       e: [Default::default(); MAX_MESHES],
@@ -258,6 +287,7 @@ impl Default for MeshCtx {
 
 // TODO add api for setting bg, proj, and view and then hide the whole GraphicsCtx from the external api
 #[derive(Default)]
+
 pub struct GraphicsCtx {
   pub bg: Vec3,
 
@@ -280,6 +310,7 @@ pub struct GraphicsCtx {
 
 /// describes the most recent mouse button state
 #[derive(Default)]
+
 pub struct ButtonState {
   /// the number of presses during the previous frame
   pub prev_down: u32,
@@ -293,15 +324,20 @@ pub struct ButtonState {
 
 impl ButtonState {
   pub(crate) fn frame_end(&mut self) {
+
     self.prev_down = self.down;
+
     self.prev_up = self.up;
+
     self.down = 0;
+
     self.up = 0;
   }
 }
 
 /// read from this struct to access information about mouse input state
 #[derive(Default)]
+
 pub struct MouseCtx {
   pub left: ButtonState,
   pub middle: ButtonState,
@@ -318,17 +354,24 @@ pub struct MouseCtx {
 
 impl MouseCtx {
   pub(crate) fn frame_end(&mut self) {
+
     self.scroll_x = 0.0;
+
     self.scroll_y = 0.0;
+
     self.prev_pos = self.pos;
+
     self.left.frame_end();
+
     self.middle.frame_end();
+
     self.right.frame_end();
   }
 }
 
 /// Holds input state. Read from this during a game update to consume player inputs.
 #[derive(Default)]
+
 pub struct InputCtx {
   pub mouse: MouseCtx,
 
@@ -350,6 +393,7 @@ pub struct InputCtx {
 }
 
 /// describes a type of input the player may be using
+
 pub enum InputType {
   MouseKeyboard,
   Gamepad, // TODO which kind? may be relevant for icons
@@ -363,6 +407,7 @@ pub enum InputType {
 /// and `run` will pass `ctx` to the api of your application. See `KApp`
 /// for the API your game should implement.
 #[derive(Default)]
+
 pub struct Ctx {
   pub frame_count: u32,
   pub input: InputCtx,
@@ -378,57 +423,73 @@ struct App<K: KApp> {
 }
 
 /// Your game should implement this trait.
+
 pub trait KApp: 'static + Sized {
   /// required so the engine can construct your game object
+
   fn new() -> Self;
 
   /// called once after the window is initialized
+
   fn init(&mut self, ctx: &mut Ctx);
 
   /// called each frame of the main loop - loop behavior and
   /// frequency can be configured via `KAppDesc`
+
   fn frame(&mut self, ctx: &mut Ctx);
 }
 
 impl<K: KApp> SApp for App<K> {
   fn sapp_init(&mut self) {
+
     let ctx = &mut self.ctx;
+
     graphics::init(ctx);
+
     self.app.init(ctx);
   }
 
   fn sapp_frame(&mut self) {
+
     let ctx = &mut self.ctx;
+
     ctx.frame_count += 1;
+
     ctx.gl.view_proj = ctx.gl.proj * ctx.gl.view;
+
     self.app.frame(ctx);
+
     graphics::present(ctx);
 
     // input cleanup
     ctx.input.mouse.frame_end();
   }
 
-  fn sapp_cleanup(&mut self) {
-    std::process::exit(0);
-  }
+  fn sapp_cleanup(&mut self) { std::process::exit(0); }
 
   fn sapp_event(&mut self, event: SAppEvent) {
+
     let ctx = &mut self.ctx;
+
     // check for system exit shortcut
     if event.event_type == SAppEventType::KeyDown
       && event.modifiers.contains(SAppModifier::SUPER)
       && (event.key_code == SAppKeycode::KeyW || event.key_code == SAppKeycode::KeyQ)
     {
+
       std::process::exit(0)
     }
 
     // TODO... sapp for events vs sdl? how do I handle gamepad input?
     match event.event_type {
       SAppEventType::MouseMove => {
+
         ctx.input.mouse.pos = vec2(event.mouse_x, event.mouse_y);
       }
       SAppEventType::MouseScroll => {
+
         ctx.input.mouse.scroll_x += event.scroll_x;
+
         ctx.input.mouse.scroll_y += event.scroll_y;
       }
       SAppEventType::MouseDown => match event.mouse_button {
@@ -464,9 +525,40 @@ impl<K: KApp> SApp for App<K> {
 }
 
 pub fn run<K: KApp>(desc: KAppDesc) {
+
   let ctx: Ctx = Default::default();
+
   let app: K = K::new();
+
   sapp_run(App { ctx, app }, desc);
+}
+
+pub fn application_root_dir() -> PathBuf {
+
+  // implementation inspired by Amethyst
+
+  // 1) use cargo manifest directory if available
+  if let Some(manifest_dir) = std::env::var_os("CARGO_MANIFEST_DIR") {
+
+    return PathBuf::from(manifest_dir);
+  }
+
+  // 2) fall back to executable directory
+  // let path = std::path::PathBuf::
+  match std::env::current_exe() {
+    Err(e) => {
+
+      println!("Error getting game path: {}", e);
+
+      PathBuf::new()
+    }
+    Ok(mut path) => {
+
+      path.pop();
+
+      path
+    }
+  }
 }
 
 // ----------------------------------------------------------------------------
