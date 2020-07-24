@@ -16,7 +16,6 @@ const INDICES_PER_QUAD: usize = 6;
 const MAX_QUAD_VERTS: usize = MAX_QUADS * VERTICES_PER_QUAD;
 
 pub(crate) fn draw_quad(ctx: &mut Ctx, quad: DrawQuad) {
-
   let i = ctx.gl.quads.count;
 
   ctx.gl.quads.count += 1;
@@ -25,7 +24,6 @@ pub(crate) fn draw_quad(ctx: &mut Ctx, quad: DrawQuad) {
 }
 
 pub fn init(ctx: &mut Ctx) {
-
   let shape = &mut ctx.gl.quads.shape;
 
   let (vs_src, fs_src) = match sg_api() {
@@ -72,11 +70,9 @@ pub fn init(ctx: &mut Ctx) {
   let mut indices: [[u16; INDICES_PER_QUAD]; MAX_QUADS] = [[0, 1, 2, 2, 1, 3]; MAX_QUADS];
 
   for quad_i in 0..MAX_QUADS {
-
     let offset = (quad_i * VERTICES_PER_QUAD) as u16;
 
     for i in 0..INDICES_PER_QUAD {
-
       indices[quad_i][i] += offset;
     }
   }
@@ -164,7 +160,6 @@ pub fn init(ctx: &mut Ctx) {
 }
 
 pub fn present(ctx: &mut Ctx) {
-
   let shape = &mut ctx.gl.quads.shape;
 
   // populate the quad vertex buffer for quad vertices
@@ -173,7 +168,6 @@ pub fn present(ctx: &mut Ctx) {
   let mut vertices: [QuadCorners; MAX_QUADS] = [Default::default(); MAX_QUADS];
 
   for quad_i in 0..ctx.gl.quads.count {
-
     vertices[quad_i] = ctx.gl.quads.e[quad_i].corners;
   }
 
@@ -189,7 +183,6 @@ pub fn present(ctx: &mut Ctx) {
   sg_apply_bindings(&shape.bindings);
 
   for i in 0..ctx.gl.quads.count {
-
     let quad = &ctx.gl.quads.e[i];
 
     let transform = quad.transform;

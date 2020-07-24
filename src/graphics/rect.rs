@@ -4,7 +4,6 @@ use crate::math::*;
 use crate::Ctx;
 
 pub fn draw_rect(ctx: &mut Ctx, aabb: Rect, color: Vec4) {
-
   let a = vec2(aabb.max_x, aabb.max_y);
 
   let b = vec2(aabb.max_x, aabb.min_y);

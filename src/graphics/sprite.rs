@@ -11,7 +11,6 @@ use crate::*;
 /// Use `draw_image` instead if you just want to draw the whole image.
 
 pub fn draw_sprite(ctx: &mut Ctx, sprite: Sprite, pos: Vec2, scale: f32) {
-
   let corners = sprite.corners;
 
   let img_id = sprite.img_id;
@@ -32,7 +31,6 @@ pub fn draw_sprite(ctx: &mut Ctx, sprite: Sprite, pos: Vec2, scale: f32) {
 /// for use in creating quad draw calls that display images
 
 fn sprite_transform(pos: Vec2, scale: f32) -> Mat4 {
-
   Mat4::from_scale_rotation_translation(Vec3::splat(scale), Quat::identity(), pos.extend(0.0))
 }
 
@@ -49,7 +47,6 @@ fn sprite_transform(pos: Vec2, scale: f32) -> Mat4 {
 /// TODO more options for pivots... center, for instance
 
 pub fn draw_image(ctx: &mut Ctx, img_id: usize, pos: Vec2, scale: f32, pivot: Pivot) {
-
   let w = ctx.gl.images.e[img_id].w as f32;
 
   let h = ctx.gl.images.e[img_id].h as f32;
@@ -72,7 +69,6 @@ pub fn draw_image(ctx: &mut Ctx, img_id: usize, pos: Vec2, scale: f32, pivot: Pi
 /// to avoid recalculating the sprite's corners every frame.
 
 pub fn sprite(ctx: &Ctx, img_id: usize, x: u32, y: u32, w: u32, h: u32, pivot: Pivot) -> Sprite {
-
   let sheet_w = ctx.gl.images.e[img_id].w as f32;
 
   let sheet_h = ctx.gl.images.e[img_id].h as f32;
@@ -105,7 +101,6 @@ pub fn sprite(ctx: &Ctx, img_id: usize, x: u32, y: u32, w: u32, h: u32, pivot: P
 /// calculates quad corners for the given sprite dimensions & uv coordinates
 
 fn sprite_corners(w: f32, h: f32, uv: Rect, pivot: Pivot) -> QuadCorners {
-
   let (min_x, min_y) = match pivot {
     Pivot::Px(x, y) => (-x, -y),
     Pivot::Center => (-w * 0.5, -h * 0.5),

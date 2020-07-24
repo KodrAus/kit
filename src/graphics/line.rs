@@ -4,7 +4,6 @@ use crate::*;
 use std::mem::size_of;
 
 pub fn draw_line(ctx: &mut Ctx, point_a: Vec3, point_b: Vec3, color: Vec4) {
-
   // TODO there's probably a more idiomatic Rust way to do this, or a library I can use...
   let i = ctx.gl.lines.count;
 
@@ -19,7 +18,6 @@ pub fn draw_line(ctx: &mut Ctx, point_a: Vec3, point_b: Vec3, color: Vec4) {
 }
 
 pub fn init(ctx: &mut Ctx) {
-
   // TODO common primitives (line, point, maybe others?) could share the same shaders
   let (vs_src, fs_src) = match sg_api() {
     SgApi::OpenGL33 => (
@@ -91,7 +89,6 @@ pub fn init(ctx: &mut Ctx) {
 }
 
 pub fn present(ctx: &mut Ctx) {
-
   sg_update_buffer(
     ctx.gl.lines.shape.bindings.vertex_buffers[0],
     &ctx.gl.lines.e,

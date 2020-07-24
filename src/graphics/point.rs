@@ -4,12 +4,10 @@ use crate::*;
 use std::mem::size_of;
 
 pub fn draw_point(ctx: &mut Ctx, pos: Vec3, color: Vec4) {
-
   let i = ctx.gl.points.count;
 
   // TODO debug only?
   if i >= MAX_POINTS {
-
     panic!("can't draw that many points!")
   }
 
@@ -19,7 +17,6 @@ pub fn draw_point(ctx: &mut Ctx, pos: Vec3, color: Vec4) {
 }
 
 pub fn init(ctx: &mut Ctx) {
-
   let (vs_src, fs_src) = match sg_api() {
     SgApi::OpenGL33 => (
       include_str!("point.vert.glsl"),
@@ -91,7 +88,6 @@ pub fn init(ctx: &mut Ctx) {
 }
 
 pub fn present(ctx: &mut Ctx) {
-
   sg_update_buffer(
     ctx.gl.points.shape.bindings.vertex_buffers[0],
     &ctx.gl.points.e,

@@ -20,13 +20,11 @@ pub(crate) struct MeshVert {
 // } model_t,
 
 pub fn draw_mesh(ctx: &mut Ctx, mesh_i: usize, transform: Mat4) {
-
   let mesh = &mut ctx.gl.mesh;
 
   let i = mesh.count;
 
   if i == MAX_MESHES {
-
     panic!("Too many mesh draw calls! Maximum is {}", MAX_MESHES);
   }
 
@@ -38,7 +36,6 @@ pub fn draw_mesh(ctx: &mut Ctx, mesh_i: usize, transform: Mat4) {
 pub fn add_cube_mesh(ctx: &mut Ctx) {}
 
 pub fn init(ctx: &mut Ctx) {
-
   let shape = &mut ctx.gl.mesh.shape;
 
   // cube vertex buffer
@@ -286,11 +283,9 @@ pub fn init(ctx: &mut Ctx) {
 }
 
 pub fn present(ctx: &mut Ctx) {
-
   let shape = &mut ctx.gl.mesh.shape;
 
   for i in 0..ctx.gl.mesh.count {
-
     let model = ctx.gl.mesh.e[i].transform;
 
     let mvp = ctx.gl.view_proj * model;

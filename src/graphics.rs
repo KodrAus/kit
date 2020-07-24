@@ -49,7 +49,6 @@ pub use sprite::*;
 /// general draw call for drawing a shape primitive
 
 pub fn draw_shape(ctx: &mut Ctx, shape: Shape, color: Vec4) {
-
   match shape {
     Shape::Point(p) => draw_point(ctx, p.extend(0.0), color),
     Shape::Rect(r) => draw_rect(ctx, r, color),
@@ -62,16 +61,19 @@ pub fn draw_shape(ctx: &mut Ctx, shape: Shape, color: Vec4) {
 
 /// the current window width
 
-pub fn window_width(_: &Ctx) -> f32 { (sapp_width() as f32) }
+pub fn window_width(_: &Ctx) -> f32 {
+  (sapp_width() as f32)
+}
 
 /// the current window height
 
-pub fn window_height(_: &Ctx) -> f32 { (sapp_height() as f32) }
+pub fn window_height(_: &Ctx) -> f32 {
+  (sapp_height() as f32)
+}
 
 /// the current aspect ratio of the application window
 
 pub fn aspect(ctx: &mut Ctx) -> f32 {
-
   // TODO memoize in state on window size change
   window_width(ctx) / window_height(ctx)
 }
@@ -79,7 +81,6 @@ pub fn aspect(ctx: &mut Ctx) -> f32 {
 /// half the current window width in device pixels
 
 pub fn window_width_half(_: &Ctx) -> f32 {
-
   // TODO memoize in state on window size change
   (sapp_width() as f32) / 2.0
 }
@@ -87,7 +88,6 @@ pub fn window_width_half(_: &Ctx) -> f32 {
 /// half the current window height in device pixels
 
 pub fn window_height_half(_: &Ctx) -> f32 {
-
   // TODO memoize in state on window size change
   (sapp_height() as f32) / 2.0
 }
@@ -96,7 +96,6 @@ pub fn window_height_half(_: &Ctx) -> f32 {
 /// than the corresponding
 
 pub fn window_to_world_2d(ctx: &Ctx, p: Vec2) -> Vec2 {
-
   let window_width = window_width(ctx) as f32;
 
   let window_height = window_height(ctx) as f32;
@@ -116,7 +115,6 @@ pub fn window_to_world_2d(ctx: &Ctx, p: Vec2) -> Vec2 {
 /// Should be called every frame if the window size is changeable.
 
 pub fn default_projection_2d(ctx: &mut Ctx) {
-
   let half_w = window_width_half(ctx);
 
   let half_h = window_height_half(ctx);
@@ -140,7 +138,6 @@ pub fn default_projection_2d(ctx: &mut Ctx) {
 /// height, and an id for setting the image for use in draw calls.
 
 pub fn load_img(ctx: &mut Ctx, filename: &str) -> Texture {
-
   let id = ctx.gl.images.count;
 
   ctx.gl.images.count += 1;
@@ -153,7 +150,6 @@ pub fn load_img(ctx: &mut Ctx, filename: &str) -> Texture {
 
   let (img_ptr, w, h) = match img {
     Err(e) => {
-
       println!("Error loading image at {:?}: {}", path, e);
 
       let img_fallback: Vec<u8> = vec![0];
@@ -161,7 +157,6 @@ pub fn load_img(ctx: &mut Ctx, filename: &str) -> Texture {
       (img_fallback.as_ptr(), 1, 1)
     }
     Ok(img) => {
-
       let img = img.into_rgba();
 
       let (w, h) = img.dimensions();
@@ -205,7 +200,6 @@ pub fn load_img(ctx: &mut Ctx, filename: &str) -> Texture {
 /// this standard uniform block in their shaders.
 
 pub(crate) fn std_uniform_block<'a>() -> SgShaderUniformBlockDesc<'a> {
-
   SgShaderUniformBlockDesc {
     size: size_of::<Mat4>() as i32,
     uniforms: vec![SgShaderUniformDesc {
@@ -223,7 +217,6 @@ pub(crate) fn std_uniform_block<'a>() -> SgShaderUniformBlockDesc<'a> {
 /// run *after* window initialization.
 
 pub fn init(ctx: &mut Ctx) {
-
   sg_setup(&SgDesc {
     ..Default::default()
   });
@@ -255,7 +248,6 @@ pub fn init(ctx: &mut Ctx) {
 /// frame of rendering. Clears all calls when done to prepare for the next frame.
 
 pub fn present(ctx: &mut Ctx) {
-
   sg_begin_default_pass(&ctx.gl.pass_action, sapp_width(), sapp_height());
 
   mesh::present(ctx);

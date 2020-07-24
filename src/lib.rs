@@ -26,13 +26,25 @@ use std::{mem, path::PathBuf};
 // ----------------------------------------------------------------------------
 // colors
 
-pub fn red() -> Vec4 { vec4(1.0, 0.0, 0.0, 1.0) }
+pub fn orange() -> Vec4 {
+  vec4(0.0, 0.0, 0.0, 0.0)
+}
 
-pub fn green() -> Vec4 { vec4(0.0, 1.0, 0.0, 1.0) }
+pub fn red() -> Vec4 {
+  vec4(1.0, 0.0, 0.0, 1.0)
+}
 
-pub fn blue() -> Vec4 { vec4(0.0, 0.0, 1.0, 1.0) }
+pub fn green() -> Vec4 {
+  vec4(0.0, 1.0, 0.0, 1.0)
+}
 
-pub fn white() -> Vec4 { vec4(1.0, 1.0, 1.0, 1.0) }
+pub fn blue() -> Vec4 {
+  vec4(0.0, 0.0, 1.0, 1.0)
+}
+
+pub fn white() -> Vec4 {
+  vec4(1.0, 1.0, 1.0, 1.0)
+}
 
 // ----------------------------------------------------------------------------
 // drawing structures and utils
@@ -88,7 +100,6 @@ pub struct Sprite {
 
 impl Sprite {
   pub fn flip_x(&self) -> Sprite {
-
     let mut copy = *self;
 
     copy.corners[0] = self.corners[3];
@@ -135,7 +146,6 @@ pub(crate) struct DrawPoint {
 
 impl DrawPoint {
   pub fn new(x: f32, y: f32, z: f32, color: Vec4) -> DrawPoint {
-
     let pos = vec4(x, y, z, 1.0);
 
     DrawPoint { pos, color }
@@ -161,7 +171,6 @@ pub(crate) struct QuadVert {
 
 impl QuadVert {
   pub fn new(x: f32, y: f32, z: f32, uvx: f32, uvy: f32) -> QuadVert {
-
     let pos = vec3(x, y, z);
 
     let uv = vec2(uvx, uvy);
@@ -209,7 +218,6 @@ pub(crate) struct ImagesCtx {
 
 impl Default for ImagesCtx {
   fn default() -> Self {
-
     Self {
       e: [Default::default(); MAX_IMAGES],
       count: 0,
@@ -225,7 +233,6 @@ pub(crate) struct QuadsCtx {
 
 impl Default for QuadsCtx {
   fn default() -> Self {
-
     Self {
       shape: Default::default(),
       e: [Default::default(); MAX_QUADS],
@@ -242,7 +249,6 @@ pub(crate) struct PointsCtx {
 
 impl Default for PointsCtx {
   fn default() -> Self {
-
     Self {
       shape: Default::default(),
       e: [Default::default(); MAX_POINTS],
@@ -259,7 +265,6 @@ pub(crate) struct LinesCtx {
 
 impl Default for LinesCtx {
   fn default() -> Self {
-
     Self {
       shape: Default::default(),
       e: [Default::default(); MAX_LINES],
@@ -276,7 +281,6 @@ pub(crate) struct MeshCtx {
 
 impl Default for MeshCtx {
   fn default() -> Self {
-
     Self {
       shape: Default::default(),
       e: [Default::default(); MAX_MESHES],
@@ -324,7 +328,6 @@ pub struct ButtonState {
 
 impl ButtonState {
   pub(crate) fn frame_end(&mut self) {
-
     self.prev_down = self.down;
 
     self.prev_up = self.up;
@@ -354,7 +357,6 @@ pub struct MouseCtx {
 
 impl MouseCtx {
   pub(crate) fn frame_end(&mut self) {
-
     self.scroll_x = 0.0;
 
     self.scroll_y = 0.0;
@@ -441,7 +443,6 @@ pub trait KApp: 'static + Sized {
 
 impl<K: KApp> SApp for App<K> {
   fn sapp_init(&mut self) {
-
     let ctx = &mut self.ctx;
 
     graphics::init(ctx);
@@ -450,7 +451,6 @@ impl<K: KApp> SApp for App<K> {
   }
 
   fn sapp_frame(&mut self) {
-
     let ctx = &mut self.ctx;
 
     ctx.frame_count += 1;
@@ -465,10 +465,11 @@ impl<K: KApp> SApp for App<K> {
     ctx.input.mouse.frame_end();
   }
 
-  fn sapp_cleanup(&mut self) { std::process::exit(0); }
+  fn sapp_cleanup(&mut self) {
+    std::process::exit(0);
+  }
 
   fn sapp_event(&mut self, event: SAppEvent) {
-
     let ctx = &mut self.ctx;
 
     // check for system exit shortcut
@@ -476,18 +477,15 @@ impl<K: KApp> SApp for App<K> {
       && event.modifiers.contains(SAppModifier::SUPER)
       && (event.key_code == SAppKeycode::KeyW || event.key_code == SAppKeycode::KeyQ)
     {
-
       std::process::exit(0)
     }
 
     // TODO... sapp for events vs sdl? how do I handle gamepad input?
     match event.event_type {
       SAppEventType::MouseMove => {
-
         ctx.input.mouse.pos = vec2(event.mouse_x, event.mouse_y);
       }
       SAppEventType::MouseScroll => {
-
         ctx.input.mouse.scroll_x += event.scroll_x;
 
         ctx.input.mouse.scroll_y += event.scroll_y;
@@ -525,7 +523,6 @@ impl<K: KApp> SApp for App<K> {
 }
 
 pub fn run<K: KApp>(desc: KAppDesc) {
-
   let ctx: Ctx = Default::default();
 
   let app: K = K::new();
@@ -534,12 +531,10 @@ pub fn run<K: KApp>(desc: KAppDesc) {
 }
 
 pub fn application_root_dir() -> PathBuf {
-
   // implementation inspired by Amethyst
 
   // 1) use cargo manifest directory if available
   if let Some(manifest_dir) = std::env::var_os("CARGO_MANIFEST_DIR") {
-
     return PathBuf::from(manifest_dir);
   }
 
@@ -547,13 +542,11 @@ pub fn application_root_dir() -> PathBuf {
   // let path = std::path::PathBuf::
   match std::env::current_exe() {
     Err(e) => {
-
       println!("Error getting game path: {}", e);
 
       PathBuf::new()
     }
     Ok(mut path) => {
-
       path.pop();
 
       path
