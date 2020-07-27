@@ -49,6 +49,31 @@ pub fn white() -> Vec4 {
 // ----------------------------------------------------------------------------
 // drawing structures and utils
 
+pub struct Transform2d {
+  pub pos: Vec2,
+  pub rotation: f32,
+  pub scale: Vec2,
+}
+
+impl Transform2d {
+  pub fn from_pos(pos: Vec2) -> Self {
+    Self {
+      pos,
+      ..Default::default()
+    }
+  }
+}
+
+impl Default for Transform2d {
+  fn default() -> Self {
+    Self {
+      pos: Vec2::zero(),
+      rotation: 0.0,
+      scale: Vec2::splat(1.0),
+    }
+  }
+}
+
 // pub(crate) const BYTES_MODEL_BUFF_V (size_of::<MeshVert>() * MAX_MODEL_VERTS)
 // pub(crate) const BYTES_MODEL_BUFF_I (size_of::<u32>() * MAX_MODEL_VERTS)
 pub(crate) const MAX_QUADS: usize = 4000;
@@ -62,7 +87,6 @@ pub(crate) const MAX_IMAGES: usize = 100;
 pub(crate) const MAX_MESHES: usize = 200;
 
 #[derive(Default, Copy, Clone)]
-
 pub struct Texture {
   pub id: usize,
   pub w: u32,
@@ -71,7 +95,6 @@ pub struct Texture {
 
 // TODO move to game layer?
 #[derive(Default, Copy, Clone)]
-
 pub struct TextureFrameDesc {
   pub x: u32,
   pub y: u32,
@@ -92,7 +115,6 @@ pub struct TextureFrameDesc {
 /// texture_id in order to allow the same sprite dimensions to be reused with
 /// different (equally sized) images.
 #[derive(Default, Clone, Copy)]
-
 pub struct Sprite {
   pub(crate) img_id: usize,
   pub(crate) corners: QuadCorners,

@@ -5,6 +5,7 @@
 use crate::math::*;
 use rand;
 use std::fmt;
+use std::ops::Add;
 
 pub struct Interval {
   pub min: f32,
@@ -33,8 +34,40 @@ pub struct Rect {
   pub max_y: f32,
 }
 
-#[derive(Default, Copy, Clone)]
+impl Rect {
+  pub fn centered(w: f32, h: f32) -> Rect {
+    Rect {
+      min_x: -w / 2.0,
+      max_x: w / 2.0,
+      min_y: -h / 2.0,
+      max_y: h / 2.0,
+    }
+  }
+}
 
+impl Add<Vec2> for Rect {
+  type Output = Rect;
+  fn add(self, other: Vec2) -> Self {
+    Rect {
+      min_x: self.min_x + other.x(),
+      max_x: self.max_x + other.x(),
+      min_y: self.min_y + other.y(),
+      max_y: self.max_y + other.y(),
+    }
+  }
+}
+
+impl fmt::Display for Rect {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    write!(
+      f,
+      "Rect ({}, {}, {}, {})",
+      self.min_x, self.max_x, self.min_y, self.max_y
+    )
+  }
+}
+
+#[derive(Default, Copy, Clone)]
 pub struct LineSegment {
   pub a: Vec2,
   pub b: Vec2,
@@ -86,11 +119,7 @@ impl fmt::Display for Shape {
         c.center.x(),
         c.center.y()
       ),
-      Shape::Rect(r) => write!(
-        f,
-        "Rect ({}, {}, {}, {})",
-        r.min_x, r.max_x, r.min_y, r.max_y
-      ),
+      Shape::Rect(r) => r.fmt(f),
     }
   }
 }
