@@ -4,16 +4,16 @@ use crate::*;
 use std::mem::size_of;
 
 pub fn draw_point(ctx: &mut Ctx, pos: Vec3, color: Vec4) {
-  let i = ctx.gl.points.count;
+  let i = ctx.gfx.points.count;
 
   // TODO debug only?
   if i >= MAX_POINTS {
     panic!("can't draw that many points!")
   }
 
-  ctx.gl.points.count += 1;
+  ctx.gfx.points.count += 1;
 
-  ctx.gl.points.e[i] = DrawPoint::new(pos.x(), pos.y(), pos.z(), color);
+  ctx.gfx.points.e[i] = DrawPoint::new(pos.x(), pos.y(), pos.z(), color);
 }
 
 pub fn init(ctx: &mut Ctx) {
@@ -84,26 +84,22 @@ pub fn init(ctx: &mut Ctx) {
     ..Default::default()
   };
 
-  ctx.gl.points.shape = GlShape { bindings, pipeline };
+  ctx.gfx.points.shape = GlShape { bindings, pipeline };
 }
 
 pub fn present(ctx: &mut Ctx) {
   sg_update_buffer(
-    ctx.gl.points.shape.bindings.vertex_buffers[0],
-    &ctx.gl.points.e,
-    (ctx.gl.points.count * size_of::<DrawPoint>()) as i32,
+    ctx.gfx.points.shape.bindings.vertex_buffers[0],
+    &ctx.gfx.points.e,
+    (ctx.gfx.points.count * size_of::<DrawPoint>()) as i32,
   );
-
-  sg_apply_pipeline(ctx.gl.points.shape.pipeline);
-
-  sg_apply_bindings(&ctx.gl.points.shape.bindings);
-
+  sg_apply_pipeline(ctx.gfx.points.shape.pipeline);
+  sg_apply_bindings(&ctx.gfx.points.shape.bindings);
   sg_apply_uniforms(
     SgShaderStage::Vertex,
     0,
-    &ctx.gl.view_proj,
+    &ctx.gfx.view_proj,
     size_of::<Mat4>() as i32,
   );
-
-  sg_draw(0, ctx.gl.points.count as i32, 1);
+  sg_draw(0, ctx.gfx.points.count as i32, 1);
 }

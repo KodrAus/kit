@@ -47,6 +47,15 @@ pub struct Rect {
 }
 
 impl Rect {
+  pub fn one() -> Rect {
+    Rect {
+      min_x: 0.0,
+      min_y: 0.0,
+      max_x: 1.0,
+      max_y: 1.0,
+    }
+  }
+
   pub fn centered(w: f32, h: f32) -> Rect {
     Rect {
       min_x: -w / 2.0,
@@ -229,7 +238,7 @@ pub fn project_circle_v_segment(result: &mut ProjectionResult, c: Circle, edge: 
 
   let mut intersection: Vec2 = Vec2::zero();
   let intersection_exists =
-    get_line_intersection(edge.a, edge.b, circ_edge_a, circ_edge_b, &mut intersection);
+    line_intersection(edge.a, edge.b, circ_edge_a, circ_edge_b, &mut intersection);
 
   if intersection_exists {
     let hit_dist: Vec2 = intersection - circ_edge_a;

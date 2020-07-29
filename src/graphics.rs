@@ -17,7 +17,6 @@ use std::f32;
 use std::path::Path;
 
 const BYTES_POINTS: usize = size_of::<DrawPoint>() * MAX_POINTS;
-
 const BYTES_LINES: usize = size_of::<DrawLine>() * MAX_LINES;
 
 // struct MeshVsParams {
@@ -33,7 +32,6 @@ const BYTES_LINES: usize = size_of::<DrawLine>() * MAX_LINES;
 
 pub use circle::draw_circ;
 pub use line::draw_line;
-use mem::transmute;
 pub use mesh::draw_mesh;
 pub use point::draw_point;
 pub use rect::draw_rect;
@@ -121,9 +119,9 @@ pub fn default_projection_2d(ctx: &mut Ctx) {
 
   let camera_pos = vec3(0.0, 0.0, 6.0);
 
-  ctx.gl.proj = Mat4::orthographic_rh_gl(-half_w, half_w, -half_h, half_h, f32::MIN, f32::MAX);
+  ctx.gfx.proj = Mat4::orthographic_rh_gl(-half_w, half_w, -half_h, half_h, f32::MIN, f32::MAX);
 
-  ctx.gl.view = Mat4::look_at_rh(camera_pos, Vec3::zero(), Vec3::unit_y());
+  ctx.gfx.view = Mat4::look_at_rh(camera_pos, Vec3::zero(), Vec3::unit_y());
 }
 
 // ----------------------------------------------------------------------------
@@ -138,9 +136,9 @@ pub fn default_projection_2d(ctx: &mut Ctx) {
 /// height, and an id for setting the image for use in draw calls.
 
 pub fn load_img(ctx: &mut Ctx, filename: &str) -> Texture {
-  let id = ctx.gl.images.count;
+  let id = ctx.gfx.images.count;
 
-  ctx.gl.images.count += 1;
+  ctx.gfx.images.count += 1;
 
   // TODO get the true path using the base... is this needed or does the Rust std lib do this for me?
   let path = application_root_dir().join(filename);
@@ -190,7 +188,7 @@ pub fn load_img(ctx: &mut Ctx, filename: &str) -> Texture {
     },
   );
 
-  ctx.gl.images.e[id] = Image { e, w, h };
+  ctx.gfx.images.e[id] = Image { e, w, h };
 
   Texture { id, w, h }
 }
@@ -221,11 +219,11 @@ pub fn init(ctx: &mut Ctx) {
     ..Default::default()
   });
 
-  ctx.gl.proj = Mat4::identity();
+  ctx.gfx.proj = Mat4::identity();
 
-  ctx.gl.view = Mat4::identity();
+  ctx.gfx.view = Mat4::identity();
 
-  ctx.gl.pass_action = SgPassAction {
+  ctx.gfx.pass_action = SgPassAction {
     colors: vec![SgColorAttachmentAction {
       action: SgAction::Clear,
       val: [0.2, 0.2, 0.2, 1.0],
@@ -248,26 +246,19 @@ pub fn init(ctx: &mut Ctx) {
 /// frame of rendering. Clears all calls when done to prepare for the next frame.
 
 pub fn present(ctx: &mut Ctx) {
-  sg_begin_default_pass(&ctx.gl.pass_action, sapp_width(), sapp_height());
+  sg_begin_default_pass(&ctx.gfx.pass_action, sapp_width(), sapp_height());
 
   mesh::present(ctx);
-
   quad::present(ctx);
-
   point::present(ctx);
-
   line::present(ctx);
 
   // clear all draw calls
-  ctx.gl.quads.count = 0;
-
-  ctx.gl.points.count = 0;
-
-  ctx.gl.lines.count = 0;
-
-  ctx.gl.mesh.count = 0;
+  ctx.gfx.quads.count = 0;
+  ctx.gfx.points.count = 0;
+  ctx.gfx.lines.count = 0;
+  ctx.gfx.mesh.count = 0;
 
   sg_end_pass();
-
   sg_commit();
 }

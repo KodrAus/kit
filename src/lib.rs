@@ -435,7 +435,7 @@ pub enum InputType {
 pub struct Ctx {
   pub frame_count: u32,
   pub input: InputCtx,
-  pub gl: GraphicsCtx,
+  pub gfx: GraphicsCtx,
 }
 
 // ----------------------------------------------------------------------------
@@ -474,13 +474,9 @@ impl<K: KApp> SApp for App<K> {
 
   fn sapp_frame(&mut self) {
     let ctx = &mut self.ctx;
-
     ctx.frame_count += 1;
-
-    ctx.gl.view_proj = ctx.gl.proj * ctx.gl.view;
-
+    ctx.gfx.view_proj = ctx.gfx.proj * ctx.gfx.view;
     self.app.frame(ctx);
-
     graphics::present(ctx);
 
     // input cleanup

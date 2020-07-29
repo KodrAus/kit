@@ -4,12 +4,10 @@ use crate::*;
 use std::mem::size_of;
 
 pub fn draw_line(ctx: &mut Ctx, point_a: Vec3, point_b: Vec3, color: Vec4) {
-  // TODO there's probably a more idiomatic Rust way to do this, or a library I can use...
-  let i = ctx.gl.lines.count;
-
-  ctx.gl.lines.count += 1;
-
-  ctx.gl.lines.e[i] = DrawLine {
+  let i = ctx.gfx.lines.count;
+  ctx.gfx.lines.count += 1;
+  // TODO this is essentially 2 vertices. Could do this with a mesh?
+  ctx.gfx.lines.e[i] = DrawLine {
     point_a: point_a.extend(1.0),
     color_a: color,
     point_b: point_b.extend(1.0),
@@ -85,26 +83,25 @@ pub fn init(ctx: &mut Ctx) {
     ..Default::default()
   };
 
-  ctx.gl.lines.shape = GlShape { bindings, pipeline };
+  ctx.gfx.lines.shape = GlShape { bindings, pipeline };
 }
 
 pub fn present(ctx: &mut Ctx) {
   sg_update_buffer(
-    ctx.gl.lines.shape.bindings.vertex_buffers[0],
-    &ctx.gl.lines.e,
-    (ctx.gl.lines.count * size_of::<DrawLine>()) as i32,
+    ctx.gfx.lines.shape.bindings.vertex_buffers[0],
+    &ctx.gfx.lines.e,
+    (ctx.gfx.lines.count * size_of::<DrawLine>()) as i32,
   );
 
-  sg_apply_pipeline(ctx.gl.lines.shape.pipeline);
-
-  sg_apply_bindings(&ctx.gl.lines.shape.bindings);
+  sg_apply_pipeline(ctx.gfx.lines.shape.pipeline);
+  sg_apply_bindings(&ctx.gfx.lines.shape.bindings);
 
   sg_apply_uniforms(
     SgShaderStage::Vertex,
     0,
-    &ctx.gl.view_proj,
+    &ctx.gfx.view_proj,
     size_of::<Mat4>() as i32,
   );
 
-  sg_draw(0, (ctx.gl.lines.count * 2) as i32, 1);
+  sg_draw(0, (ctx.gfx.lines.count * 2) as i32, 1);
 }

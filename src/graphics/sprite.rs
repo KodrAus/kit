@@ -45,14 +45,9 @@ fn sprite_transform(transform: Transform2d) -> Mat4 {
 ///
 /// TODO more options for pivots... center, for instance
 pub fn draw_image(ctx: &mut Ctx, img_id: usize, pivot: Pivot, transform: Transform2d) {
-  let w = ctx.gl.images.e[img_id].w as f32;
-  let h = ctx.gl.images.e[img_id].h as f32;
-  let uv = Rect {
-    min_x: 0.0,
-    min_y: 0.0,
-    max_x: 1.0,
-    max_y: 1.0,
-  };
+  let w = ctx.gfx.images.e[img_id].w as f32;
+  let h = ctx.gfx.images.e[img_id].h as f32;
+  let uv = Rect::one();
   let corners = sprite_corners(w, h, uv, pivot);
   let sprite = Sprite { img_id, corners };
   draw_sprite(ctx, sprite, transform);
@@ -61,8 +56,8 @@ pub fn draw_image(ctx: &mut Ctx, img_id: usize, pivot: Pivot, transform: Transfo
 /// Sprite builder. The result can be consumed immediately by `draw_sprite` or stored
 /// to avoid recalculating the sprite's corners every frame.
 pub fn sprite(ctx: &Ctx, img_id: usize, x: u32, y: u32, w: u32, h: u32, pivot: Pivot) -> Sprite {
-  let sheet_w = ctx.gl.images.e[img_id].w as f32;
-  let sheet_h = ctx.gl.images.e[img_id].h as f32;
+  let sheet_w = ctx.gfx.images.e[img_id].w as f32;
+  let sheet_h = ctx.gfx.images.e[img_id].h as f32;
   // TODO maybe just use f32 for everything to avoid the casts?
   let x_max = (x + w) as f32;
   let y_max = (y + h) as f32;

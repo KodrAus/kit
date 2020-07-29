@@ -20,7 +20,7 @@ pub(crate) struct MeshVert {
 // } model_t,
 
 pub fn draw_mesh(ctx: &mut Ctx, mesh_i: usize, transform: Mat4) {
-  let mesh = &mut ctx.gl.mesh;
+  let mesh = &mut ctx.gfx.mesh;
 
   let i = mesh.count;
 
@@ -36,7 +36,7 @@ pub fn draw_mesh(ctx: &mut Ctx, mesh_i: usize, transform: Mat4) {
 pub fn add_cube_mesh(ctx: &mut Ctx) {}
 
 pub fn init(ctx: &mut Ctx) {
-  let shape = &mut ctx.gl.mesh.shape;
+  let shape = &mut ctx.gfx.mesh.shape;
 
   // cube vertex buffer
   let vertices: [MeshVert; 24] = [
@@ -147,7 +147,7 @@ pub fn init(ctx: &mut Ctx) {
     },
   );
 
-  //     ctx.gl
+  //     ctx.gfx
   //         .test_shape
   //         .bindings
   //         .vertex_buffers
@@ -283,19 +283,14 @@ pub fn init(ctx: &mut Ctx) {
 }
 
 pub fn present(ctx: &mut Ctx) {
-  let shape = &mut ctx.gl.mesh.shape;
+  let shape = &mut ctx.gfx.mesh.shape;
 
-  for i in 0..ctx.gl.mesh.count {
-    let model = ctx.gl.mesh.e[i].transform;
-
-    let mvp = ctx.gl.view_proj * model;
-
+  for i in 0..ctx.gfx.mesh.count {
+    let model = ctx.gfx.mesh.e[i].transform;
+    let mvp = ctx.gfx.view_proj * model;
     sg_apply_pipeline(shape.pipeline);
-
     sg_apply_bindings(&shape.bindings);
-
     sg_apply_uniforms(SgShaderStage::Vertex, 0, &mvp, 64);
-
     sg_draw(0, 36, 1);
   }
 }

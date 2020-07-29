@@ -16,16 +16,13 @@ const INDICES_PER_QUAD: usize = 6;
 const MAX_QUAD_VERTS: usize = MAX_QUADS * VERTICES_PER_QUAD;
 
 pub(crate) fn draw_quad(ctx: &mut Ctx, quad: DrawQuad) {
-  let i = ctx.gl.quads.count;
-
-  ctx.gl.quads.count += 1;
-
-  ctx.gl.quads.e[i] = quad;
+  let i = ctx.gfx.quads.count;
+  ctx.gfx.quads.count += 1;
+  ctx.gfx.quads.e[i] = quad;
 }
 
 pub fn init(ctx: &mut Ctx) {
-  let shape = &mut ctx.gl.quads.shape;
-
+  let shape = &mut ctx.gfx.quads.shape;
   let (vs_src, fs_src) = match sg_api() {
     SgApi::OpenGL33 => (
       include_str!("quad.vert.glsl"),
@@ -37,15 +34,10 @@ pub fn init(ctx: &mut Ctx) {
 
   // create a checkerboard texture
   const WIDTH: usize = 4;
-
   const HEIGHT: usize = 4;
-
   let pixels_a: [u32; WIDTH] = [0xFFFFFFFF, 0xFF000000, 0xFFFFFFFF, 0xFF000000];
-
   let pixels_b: [u32; WIDTH] = [0xFF000000, 0xFFFFFFFF, 0xFF000000, 0xFFFFFFFF];
-
   let pixels: [[u32; WIDTH]; HEIGHT] = [pixels_a, pixels_b, pixels_a, pixels_b];
-
   let debug_image = sg_make_image(
     Some(&[(&pixels, (size_of_val(&pixels)) as i32)]),
     &SgImageDesc {
@@ -56,7 +48,6 @@ pub fn init(ctx: &mut Ctx) {
   );
 
   shape.bindings.fs_images.push(debug_image);
-
   shape.bindings.vertex_buffers.push(sg_make_buffer::<()>(
     None,
     &SgBufferDesc {
@@ -68,10 +59,8 @@ pub fn init(ctx: &mut Ctx) {
 
   // quad index order never changes, so I can pre-populate it for all possible quads
   let mut indices: [[u16; INDICES_PER_QUAD]; MAX_QUADS] = [[0, 1, 2, 2, 1, 3]; MAX_QUADS];
-
   for quad_i in 0..MAX_QUADS {
     let offset = (quad_i * VERTICES_PER_QUAD) as u16;
-
     for i in 0..INDICES_PER_QUAD {
       indices[quad_i][i] += offset;
     }
@@ -86,8 +75,7 @@ pub fn init(ctx: &mut Ctx) {
     },
   );
 
-  /* a shader (use separate shader sources here */
-
+  // a shader (use separate shader sources here
   let shd = sg_make_shader(&SgShaderDesc {
     attrs: vec![
       SgShaderAttrDesc {
@@ -115,8 +103,7 @@ pub fn init(ctx: &mut Ctx) {
     },
   });
 
-  /* a pipeline state object */
-
+  // a pipeline state object
   shape.pipeline = sg_make_pipeline(&SgPipelineDesc {
     // TODO use triangle strip to reduce the number of indices sent?
     primitive_type: SgPrimitiveType::Triangles,
@@ -160,34 +147,31 @@ pub fn init(ctx: &mut Ctx) {
 }
 
 pub fn present(ctx: &mut Ctx) {
-  let shape = &mut ctx.gl.quads.shape;
+  let shape = &mut ctx.gfx.quads.shape;
 
   // populate the quad vertex buffer for quad vertices
   // we need to strip out extra info (uniforms) and create a contiguous array of vertices
   // TODO could use vertex stride and
   let mut vertices: [QuadCorners; MAX_QUADS] = [Default::default(); MAX_QUADS];
 
-  for quad_i in 0..ctx.gl.quads.count {
-    vertices[quad_i] = ctx.gl.quads.e[quad_i].corners;
+  for quad_i in 0..ctx.gfx.quads.count {
+    vertices[quad_i] = ctx.gfx.quads.e[quad_i].corners;
   }
 
   sg_update_buffer(
     shape.bindings.vertex_buffers[0],
     &vertices,
-    (ctx.gl.quads.count * size_of::<QuadCorners>()) as i32,
+    (ctx.gfx.quads.count * size_of::<QuadCorners>()) as i32,
   );
 
   // draw quad batches
   sg_apply_pipeline(shape.pipeline);
-
   sg_apply_bindings(&shape.bindings);
 
-  for i in 0..ctx.gl.quads.count {
-    let quad = &ctx.gl.quads.e[i];
-
+  for i in 0..ctx.gfx.quads.count {
+    let quad = &ctx.gfx.quads.e[i];
     let transform = quad.transform;
-
-    let mut mv = ctx.gl.view * transform;
+    let mut mv = ctx.gfx.view * transform;
 
     // cancel out some parts of the model_shape view matrix in order to
     // billboard the sprite
@@ -204,13 +188,12 @@ pub fn present(ctx: &mut Ctx) {
     // mv.e[2][1] = 0.0;
     // mv.e[2][2] = transform.e[2][2];
 
-    let mvp = ctx.gl.proj * mv;
+    let mvp = ctx.gfx.proj * mv;
 
     sg_apply_uniforms(SgShaderStage::Vertex, 0, &mvp, size_of::<Mat4>() as i32);
 
     let img_id = quad.img_id;
-
-    shape.bindings.fs_images[0] = ctx.gl.images.e[img_id].e;
+    shape.bindings.fs_images[0] = ctx.gfx.images.e[img_id].e;
 
     sg_apply_bindings(&shape.bindings); // do I need to re-apply this for each draw call?
 
