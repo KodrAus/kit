@@ -77,13 +77,9 @@ impl Default for Transform2d {
 // pub(crate) const BYTES_MODEL_BUFF_V (size_of::<MeshVert>() * MAX_MODEL_VERTS)
 // pub(crate) const BYTES_MODEL_BUFF_I (size_of::<u32>() * MAX_MODEL_VERTS)
 pub(crate) const MAX_QUADS: usize = 4000;
-
-pub(crate) const MAX_POINTS: usize = 15000;
-
-pub(crate) const MAX_LINES: usize = 1000;
-
+pub(crate) const MAX_POINTS: usize = 100;
+pub(crate) const MAX_LINES: usize = 100;
 pub(crate) const MAX_IMAGES: usize = 100;
-
 pub(crate) const MAX_MESHES: usize = 200;
 
 #[derive(Default, Copy, Clone)]
