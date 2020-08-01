@@ -5,6 +5,7 @@ description = "An small game engine for 3D games."
 edition = "2018"
 exclude = [
   ".vscode/*",
+  "examples",
 ]
 homepage = "https://github.com/weshardee/kit"
 keywords = ["graphics", "3D", "game", "engine"]

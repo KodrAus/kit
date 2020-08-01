@@ -89,16 +89,6 @@ pub struct Texture {
   pub h: u32,
 }
 
-// TODO move to game layer?
-#[derive(Default, Copy, Clone)]
-pub struct TextureFrameDesc {
-  pub x: u32,
-  pub y: u32,
-  pub w: u32,
-  pub h: u32,
-  pub offset: Vec2,
-}
-
 /// Defines a subset of a texture that can be drawn. Can be used to define the
 /// placement of a single sprite within a spritesheet.
 ///
@@ -119,21 +109,14 @@ pub struct Sprite {
 impl Sprite {
   pub fn flip_x(&self) -> Sprite {
     let mut copy = *self;
-
     copy.corners[0] = self.corners[3];
-
     copy.corners[3] = self.corners[0];
-
     copy.corners[1] = self.corners[2];
-
     copy.corners[2] = self.corners[1];
 
     copy.corners[0].pos.set_x(-copy.corners[0].pos.x());
-
     copy.corners[1].pos.set_x(-copy.corners[1].pos.x());
-
     copy.corners[2].pos.set_x(-copy.corners[2].pos.x());
-
     copy.corners[3].pos.set_x(-copy.corners[3].pos.x());
 
     copy
@@ -148,7 +131,6 @@ impl Sprite {
 /// Pivot point coordinates, like Sprites and Quad uvs, are relative
 /// to the lower-left corner of the Sprite in question.
 #[derive(Copy, Clone)]
-
 pub enum Pivot {
   Center,
   Px(f32, f32),
@@ -156,7 +138,6 @@ pub enum Pivot {
 
 #[derive(Default, Copy, Clone)]
 #[repr(align(16))]
-
 pub(crate) struct DrawPoint {
   pos: Vec4, // TODO maybe Vec3A?
   color: Vec4,
@@ -165,14 +146,12 @@ pub(crate) struct DrawPoint {
 impl DrawPoint {
   pub fn new(x: f32, y: f32, z: f32, color: Vec4) -> DrawPoint {
     let pos = vec4(x, y, z, 1.0);
-
     DrawPoint { pos, color }
   }
 }
 
 #[derive(Default, Copy, Clone)]
 #[repr(align(16))]
-
 pub(crate) struct DrawLine {
   pub point_a: Vec4, // TODO maybe Vec3A?
   pub color_a: Vec4,
@@ -181,7 +160,6 @@ pub(crate) struct DrawLine {
 }
 
 #[derive(Default, Copy, Clone)]
-
 pub(crate) struct QuadVert {
   pub pos: Vec3,
   pub uv: Vec2,
@@ -190,9 +168,7 @@ pub(crate) struct QuadVert {
 impl QuadVert {
   pub fn new(x: f32, y: f32, z: f32, uvx: f32, uvy: f32) -> QuadVert {
     let pos = vec3(x, y, z);
-
     let uv = vec2(uvx, uvy);
-
     QuadVert { pos, uv }
   }
 }
@@ -200,7 +176,6 @@ impl QuadVert {
 pub(crate) type QuadCorners = [QuadVert; 4];
 
 #[derive(Default, Copy, Clone)]
-
 pub(crate) struct DrawQuad {
   pub img_id: usize,
   pub corners: QuadCorners,
@@ -208,21 +183,18 @@ pub(crate) struct DrawQuad {
 }
 
 #[derive(Default, Clone, Copy)]
-
 pub(crate) struct DrawMesh {
   pub mesh_i: usize,
   pub transform: Mat4,
 }
 
 #[derive(Default)]
-
 pub(crate) struct GlShape {
   pub pipeline: SgPipeline,
   pub bindings: SgBindings,
 }
 
 #[derive(Default, Copy, Clone)]
-
 pub(crate) struct Image {
   pub(crate) e: SgImage,
   pub(crate) w: u32,
@@ -347,11 +319,8 @@ pub struct ButtonState {
 impl ButtonState {
   pub(crate) fn frame_end(&mut self) {
     self.prev_down = self.down;
-
     self.prev_up = self.up;
-
     self.down = 0;
-
     self.up = 0;
   }
 }
@@ -376,15 +345,10 @@ pub struct MouseCtx {
 impl MouseCtx {
   pub(crate) fn frame_end(&mut self) {
     self.scroll_x = 0.0;
-
     self.scroll_y = 0.0;
-
     self.prev_pos = self.pos;
-
     self.left.frame_end();
-
     self.middle.frame_end();
-
     self.right.frame_end();
   }
 }
@@ -427,7 +391,6 @@ pub enum InputType {
 /// and `run` will pass `ctx` to the api of your application. See `KApp`
 /// for the API your game should implement.
 #[derive(Default)]
-
 pub struct Ctx {
   pub frame_count: u32,
   pub input: InputCtx,
@@ -443,28 +406,22 @@ struct App<K: KApp> {
 }
 
 /// Your game should implement this trait.
-
 pub trait KApp: 'static + Sized {
   /// required so the engine can construct your game object
-
   fn new() -> Self;
 
   /// called once after the window is initialized
-
   fn init(&mut self, ctx: &mut Ctx);
 
   /// called each frame of the main loop - loop behavior and
   /// frequency can be configured via `KAppDesc`
-
   fn frame(&mut self, ctx: &mut Ctx);
 }
 
 impl<K: KApp> SApp for App<K> {
   fn sapp_init(&mut self) {
     let ctx = &mut self.ctx;
-
     graphics::init(ctx);
-
     self.app.init(ctx);
   }
 
@@ -538,9 +495,7 @@ impl<K: KApp> SApp for App<K> {
 
 pub fn run<K: KApp>(desc: KAppDesc) {
   let ctx: Ctx = Default::default();
-
   let app: K = K::new();
-
   sapp_run(App { ctx, app }, desc);
 }
 
@@ -557,12 +512,10 @@ pub fn application_root_dir() -> PathBuf {
   match std::env::current_exe() {
     Err(e) => {
       println!("Error getting game path: {}", e);
-
       PathBuf::new()
     }
     Ok(mut path) => {
       path.pop();
-
       path
     }
   }

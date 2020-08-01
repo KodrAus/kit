@@ -54,37 +54,35 @@ pub fn draw_shape(ctx: &mut Ctx, shape: Shape, color: Vec4) {
   }
 }
 
+/// draws text on screen
+pub fn draw_text(ctx: &mut Ctx, text: &str, font: usize, size: f32, pos: Vec2) {}
+
 // ----------------------------------------------------------------------------
 // GETTERS
 
 /// the current window width
-
 pub fn window_width(_: &Ctx) -> f32 {
   (sapp_width() as f32)
 }
 
 /// the current window height
-
 pub fn window_height(_: &Ctx) -> f32 {
   (sapp_height() as f32)
 }
 
 /// the current aspect ratio of the application window
-
 pub fn aspect(ctx: &mut Ctx) -> f32 {
   // TODO memoize in state on window size change
   window_width(ctx) / window_height(ctx)
 }
 
 /// half the current window width in device pixels
-
 pub fn window_width_half(_: &Ctx) -> f32 {
   // TODO memoize in state on window size change
   (sapp_width() as f32) / 2.0
 }
 
 /// half the current window height in device pixels
-
 pub fn window_height_half(_: &Ctx) -> f32 {
   // TODO memoize in state on window size change
   (sapp_height() as f32) / 2.0
@@ -95,11 +93,8 @@ pub fn window_height_half(_: &Ctx) -> f32 {
 
 pub fn window_to_world_2d(ctx: &Ctx, p: Vec2) -> Vec2 {
   let window_width = window_width(ctx) as f32;
-
   let window_height = window_height(ctx) as f32;
-
   let world_pos = vec2(p.x() - window_width / 2.0, window_height / 2.0 - p.y());
-
   world_pos
 }
 
@@ -111,33 +106,23 @@ pub fn window_to_world_2d(ctx: &Ctx, p: Vec2) -> Vec2 {
 /// However, we set the world origin to be the center of the screen and y points up.
 ///
 /// Should be called every frame if the window size is changeable.
-
 pub fn default_projection_2d(ctx: &mut Ctx) {
   let half_w = window_width_half(ctx);
-
   let half_h = window_height_half(ctx);
-
   let camera_pos = vec3(0.0, 0.0, 6.0);
-
   ctx.gfx.proj = Mat4::orthographic_rh_gl(-half_w, half_w, -half_h, half_h, f32::MIN, f32::MAX);
-
   ctx.gfx.view = Mat4::look_at_rh(camera_pos, Vec3::zero(), Vec3::unit_y());
 }
 
 // ----------------------------------------------------------------------------
-// IMAGE LOADING
-
-// TODO unload textures?
-
-// ----------------------------------------------------------------------------
-// asset loading
+// ASSET LOADING
 
 /// Loads an image into memory. Returns info about the image, including width,
 /// height, and an id for setting the image for use in draw calls.
-
+///
+/// TODO unloading
 pub fn load_img(ctx: &mut Ctx, filename: &str) -> Texture {
   let id = ctx.gfx.images.count;
-
   ctx.gfx.images.count += 1;
 
   // TODO get the true path using the base... is this needed or does the Rust std lib do this for me?
@@ -149,31 +134,23 @@ pub fn load_img(ctx: &mut Ctx, filename: &str) -> Texture {
   let (img_ptr, w, h) = match img {
     Err(e) => {
       println!("Error loading image at {:?}: {}", path, e);
-
       let img_fallback: Vec<u8> = vec![0];
-
       (img_fallback.as_ptr(), 1, 1)
     }
     Ok(img) => {
       let img = img.into_rgba();
-
       let (w, h) = img.dimensions();
-
       let img_data = img.into_raw();
-
       let img_ptr: *const u8 = img_data.as_ptr();
-
       (img_ptr, w, h)
     }
   };
 
   let width = w as i32;
-
   let height = h as i32;
 
   // let num_channels = num_channels as i32;
   let size: i32 = width * height * 8 /* bytes per pixel */;
-
   let e = sg_make_image(
     Some(&[(img_ptr, size)]),
     &SgImageDesc {
@@ -189,7 +166,6 @@ pub fn load_img(ctx: &mut Ctx, filename: &str) -> Texture {
   );
 
   ctx.gfx.images.e[id] = Image { e, w, h };
-
   Texture { id, w, h }
 }
 
@@ -220,9 +196,7 @@ pub fn init(ctx: &mut Ctx) {
   });
 
   ctx.gfx.proj = Mat4::identity();
-
   ctx.gfx.view = Mat4::identity();
-
   ctx.gfx.pass_action = SgPassAction {
     colors: vec![SgColorAttachmentAction {
       action: SgAction::Clear,
@@ -234,11 +208,8 @@ pub fn init(ctx: &mut Ctx) {
   // initialize each primitive shape's memory for draw commands
   // shader, and pipeline
   mesh::init(ctx);
-
   line::init(ctx);
-
   point::init(ctx);
-
   quad::init(ctx);
 }
 
