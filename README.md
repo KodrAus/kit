@@ -36,20 +36,21 @@ use kit::*;
 const TITLE: &str = "My Amazing Game";
 
 struct App {
-    // game state can go here
+  // game state can go here
 }
 
 impl KApp for App {
-    fn new() -> Self {
-        Self {}
-    }
-    fn init(&mut self, ctx: &mut Ctx) {
-        // initialization logic goes here
-    }
-    fn frame(&mut self, ctx: &mut Ctx) {
-        let state = &mut self.state;
-        // update logic goes here
-    }
+  fn new() -> Self { Self {} }
+
+  fn init(&mut self, ctx: &mut Ctx) {
+    // initialization logic goes here. For example,
+    // you could load all the game's sprites/sounds/models 
+    // into memory.
+  }
+
+  fn frame(&mut self, ctx: &mut Ctx) {
+    // update logic goes here
+  }
 }
 
 fn main() {
