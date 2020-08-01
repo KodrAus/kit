@@ -59,3 +59,7 @@ fn main() {
     });
 }
 ```
+
+## Examples
+
+Kit uses cargo examples, so run `cargo run --example example_name` to see an example in action.
